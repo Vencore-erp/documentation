@@ -57,6 +57,7 @@ This project is a comprehensive **e-Procurement System** built using a **microse
 | [Glossary](./GLOSSARY.md) | Terms and definitions |
 | [Changelog](./CHANGELOG.md) | Version history and changes |
 | [Brutal Review v1](./BRUTAL_REVIEW_V1.md) | 🔥 Honest code review with findings |
+| [A+ Roadmap](./A_PLUS_ROADMAP.md) | 🏆 10-week plan to achieve A+ grade |
 
 ## 🏢 System Components
 
