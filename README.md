@@ -31,33 +31,34 @@ This project is a comprehensive **e-Procurement System** built using a **microse
 ### Core Documentation
 | Document | Description |
 |----------|-------------|
-| [Architecture Overview](./ARCHITECTURE.md) | System architecture, components, and design patterns |
-| [API Reference](./API_REFERENCE.md) | Complete API endpoints documentation |
-| [Database Schema](./DATABASE_SCHEMA.md) | Entity relationships and table structures |
-| [Services Overview](./SERVICES.md) | Detailed description of each microservice |
+| [Architecture Overview](./references/ARCHITECTURE.md) | System architecture, components, and design patterns |
+| [API Reference](./references/API_REFERENCE.md) | Complete API endpoints documentation |
+| [Database Schema](./references/DATABASE_SCHEMA.md) | Entity relationships and table structures |
+| [Services Overview](./references/SERVICES.md) | Detailed description of each microservice |
 
 ### Operational Guides
 | Document | Description |
 |----------|-------------|
-| [Getting Started](./GETTING_STARTED.md) | Quick start guide for developers |
-| [Deployment Guide](./DEPLOYMENT.md) | Production deployment instructions |
-| [Configuration Guide](./CONFIGURATION.md) | Environment variables and settings |
+| [Getting Started](./guides/GETTING_STARTED.md) | Quick start guide for developers |
+| [Deployment Guide](./guides/DEPLOYMENT.md) | Production deployment instructions |
+| [Configuration Guide](./guides/CONFIGURATION.md) | Environment variables and settings |
 
 ### Development Guides
 | Document | Description |
 |----------|-------------|
-| [Development Guide](./DEVELOPMENT.md) | Development workflow and coding standards |
-| [Testing Guide](./TESTING.md) | Unit and integration testing strategies |
-| [Security Guide](./SECURITY.md) | Authentication, authorization, and security practices |
+| [Development Guide](./guides/DEVELOPMENT.md) | Development workflow and coding standards |
+| [Testing Guide](./guides/TESTING.md) | Unit and integration testing strategies |
+| [Security Guide](./guides/SECURITY.md) | Authentication, authorization, and security practices |
 
-### Reference
+### Reference & Planning
 | Document | Description |
 |----------|-------------|
-| [Troubleshooting](./TROUBLESHOOTING.md) | Common issues and solutions |
-| [Glossary](./GLOSSARY.md) | Terms and definitions |
-| [Changelog](./CHANGELOG.md) | Version history and changes |
-| [Brutal Review v1](./BRUTAL_REVIEW_V1.md) | 🔥 Honest code review with findings |
-| [A+ Roadmap](./A_PLUS_ROADMAP.md) | 🏆 10-week plan to achieve A+ grade |
+| [Troubleshooting](./guides/TROUBLESHOOTING.md) | Common issues and solutions |
+| [Glossary](./references/GLOSSARY.md) | Terms and definitions |
+| [Changelog](./planning/CHANGELOG.md) | Version history and changes |
+| [Brutal Review v1](./reviews/BRUTAL_REVIEW_V1.md) | 🔥 Honest code review with findings |
+| [A+ Roadmap](./planning/A_PLUS_ROADMAP.md) | 🏆 10-week plan to achieve A+ grade |
+| [Phase Updates](./phases/) | 🔄 Progress reports per phase |
 
 ## 🏢 System Components
 
