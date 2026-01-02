@@ -1,152 +1,56 @@
-# e-Procurement System Documentation
+# Enterprise e-Procurement System Documentation
 
-<p align="center">
-  <strong>Enterprise e-Procurement Microservices Platform</strong><br>
-  <em>PT XYZ - Tugas Akhir Project</em>
-</p>
-
----
-
-## 📋 Overview
-
-This project is a comprehensive **e-Procurement System** built using a **microservices architecture**. The system is designed to manage the entire procurement lifecycle, from purchase requisition to payment processing, with support for vendor management, inventory tracking, and workflow automation.
-
-## 🏗️ Architecture Summary
-
-| Component | Technology |
-|-----------|------------|
-| **Backend Framework** | Spring Boot 4.0.x |
-| **Language** | Java 21 |
-| **Database** | PostgreSQL 16 |
-| **Message Queue** | Apache Kafka 7.7 |
-| **Cache** | Redis 7.4 |
-| **API Gateway** | Spring Cloud Gateway |
-| **Security** | OAuth2 + JWT |
-| **Documentation** | OpenAPI 3 (Springdoc) |
-| **Container** | Docker + Docker Compose |
-| **Migration** | Flyway |
-
-## 📚 Documentation Index
-
-### Core Documentation
-| Document | Description |
-|----------|-------------|
-| [Architecture Overview](./references/ARCHITECTURE.md) | System architecture, components, and design patterns |
-| [API Reference](./references/API_REFERENCE.md) | Complete API endpoints documentation |
-| [Database Schema](./references/DATABASE_SCHEMA.md) | Entity relationships and table structures |
-| [Services Overview](./references/SERVICES.md) | Detailed description of each microservice |
-
-### Operational Guides
-| Document | Description |
-|----------|-------------|
-| [Getting Started](./guides/GETTING_STARTED.md) | Quick start guide for developers |
-| [Deployment Guide](./guides/DEPLOYMENT.md) | Production deployment instructions |
-| [Configuration Guide](./guides/CONFIGURATION.md) | Environment variables and settings |
-
-### Development Guides
-| Document | Description |
-|----------|-------------|
-| [Development Guide](./guides/DEVELOPMENT.md) | Development workflow and coding standards |
-| [Testing Guide](./guides/TESTING.md) | Unit and integration testing strategies |
-| [Security Guide](./guides/SECURITY.md) | Authentication, authorization, and security practices |
-
-### Reference & Planning
-| Document | Description |
-|----------|-------------|
-| [Troubleshooting](./guides/TROUBLESHOOTING.md) | Common issues and solutions |
-| [Glossary](./references/GLOSSARY.md) | Terms and definitions |
-| [Changelog](./planning/CHANGELOG.md) | Version history and changes |
-| [Brutal Review v1](./reviews/BRUTAL_REVIEW_V1.md) | 🔥 Honest code review with findings |
-| [A+ Roadmap](./planning/A_PLUS_ROADMAP.md) | 🏆 10-week plan to achieve A+ grade |
-| [Phase Updates](./phases/) | 🔄 Progress reports per phase |
-
-## 🏢 System Components
-
-### Core Business Services
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         e-Procurement System                            │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
-│  │    Auth     │  │    User     │  │   Vendor    │  │   Master    │    │
-│  │   Service   │  │   Service   │  │   Service   │  │    Data     │    │
-│  │   :8081     │  │   :8082     │  │   :8085     │  │   :8083     │    │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘    │
-│                                                                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
-│  │ Procurement │  │  Inventory  │  │   Admin     │  │ Notification│    │
-│  │   Service   │  │   Service   │  │   Service   │  │   Service   │    │
-│  │   :8084     │  │   :8093     │  │   :8087     │  │   :8088     │    │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘    │
-│                                                                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                     │
-│  │   Audit     │  │  Workflow   │  │  Reporting  │                     │
-│  │   Service   │  │   Service   │  │   Service   │                     │
-│  │   :8090     │  │   :8091     │  │   :8092     │                     │
-│  └─────────────┘  └─────────────┘  └─────────────┘                     │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-### Infrastructure Components
-- **API Gateway** (Port 8080) - Entry point for all client requests
-- **PostgreSQL** (Port 5432) - Primary relational database
-- **Kafka** (Port 9092) - Event streaming platform
-- **Redis** (Port 6379) - Caching and session management
-- **PgAdmin** (Port 5050) - Database administration UI
-- **Redis Insight** (Port 8001) - Redis administration UI
-
-## 🚀 Quick Start
-
-```bash
-# 1. Start infrastructure services
-cd backend/infra
-docker-compose up -d
-
-# 2. Run individual services
-cd ../services/auth-service/auth-service
-./mvnw spring-boot:run
-
-# 3. Access Swagger UI
-# http://localhost:8081/swagger-ui.html
-```
-
-## 📊 Service Port Mapping
-
-| Service | Port | Description |
-|---------|------|-------------|
-| Gateway Service | 8080 | API Gateway |
-| Auth Service | 8081 | Authentication & Authorization |
-| User Service | 8082 | User Management |
-| Master Data Service | 8083 | Reference Data |
-| Procurement Service | 8084 | Procurement Operations |
-| Vendor Service | 8085 | Vendor Management |
-| Payment Service | 8086 | Payment Processing |
-| Admin Service | 8087 | Administration |
-| Notification Service | 8088 | Notifications & Alerts |
-| Document Service | 8089 | Document Management |
-| Audit Service | 8090 | Audit Logging |
-| Workflow Service | 8091 | Workflow Engine |
-| Reporting Service | 8092 | Reports & Analytics |
-| Inventory Service | 8093 | Inventory Management |
-
-## 📝 Key Features
-
-- ✅ **Multi-Role Support**: OPERATOR, SUPERVISOR, FINANCE, ADMIN
-- ✅ **Workflow Automation**: Approval workflows with escalation
-- ✅ **Event-Driven Architecture**: Kafka-based async communication
-- ✅ **Soft Delete Pattern**: Data preservation with `is_deleted` flags
-- ✅ **JWT Authentication**: Secure token-based authentication
-- ✅ **API Documentation**: Swagger/OpenAPI 3 for all services
-- ✅ **Audit Logging**: Comprehensive audit trail
-
-## 📧 Contact
-
-For questions or support regarding this documentation, please contact the development team.
+## Thesis Overview
+**Project Title:** Enterprise e-Procurement System for Banking (ISO 27001 Compliant)
+**Context:** Final Thesis Project (Tugas Akhir)
+**Compliance:** ISO 27001, Sarbanes-Oxley (SOX), OJK/BI Regulations
 
 ---
 
-<p align="center">
-  <em>Last Updated: January 2026</em>
-</p>
+## 1. Documentation Map
+This repository contains the complete technical and functional documentation for the system, structured to support the thesis dissertation chapters.
+
+### [Use Case Specifications (Functional Limits)](./use_cases/README.md)
+*   **Location:** [`/documentation/use_cases`](./use_cases/README.md)
+*   **Content:**
+    *   **Academic Abstract & Problem Statement**
+    *   **ISO 27001 & SoD Compliance Matrix**
+    *   **Detailed Use Case Flows (110 Items)** organized by Actor:
+        *   [Admin (System & Security)](./use_cases/01_Admin/Admin_Use_Cases.md)
+        *   [Operator (Procurement)](./use_cases/02_Operator/Operator_Use_Cases.md)
+        *   [Supervisor (Approvals)](./use_cases/03_Supervisor/Supervisor_Use_Cases.md)
+        *   [Finance (Payments)](./use_cases/04_Finance/Finance_Use_Cases.md)
+        *   [Vendor (Portal)](./use_cases/05_Vendor/Vendor_Use_Cases.md)
+
+### Technical Architecture
+*   **[Microservices Architecture](./SERVICES.md):** Breakdown of the 10+ services (Auth, Procurement, Finance, etc.).
+*   **[API Documentation](./BACKEND_API_DOCUMENTATION.md):** OpenAPI/Swagger reference for backend integration.
+*   **[Development Guide](./DEVELOPMENT.md):** Setup, Build, and Deployment instructions.
+*   **[Testing Strategy](./TESTING.md):** Unit, Integration, and Security testing plans.
+
+---
+
+## 2. Academic Context
+
+### 2.1 Problem Statement
+Banks currently face operational risks due to fragmented procurement processes. Manual approvals and lack of system integration lead to:
+1.  **Compliance Breaches:** Inability to audit who approved what.
+2.  **Inefficiency:** Slow procurement cycles affecting banking operations.
+3.  **Fraud Risk:** Lack of automated checks against "Blacklisted Vendors" or "Budget Overruns".
+
+### 2.2 Solution Statement
+This e-Procurement ERP creates a centralized, auditable, and secure platform that:
+*   Enforces **Segregation of Duties (SoD)** to prevent fraud.
+*   Implements **ISO 27001** controls (Encryption, Access Control).
+*   Provides real-time **Budget Analytics** for strategic decision-making.
+
+### 2.3 Key Standards Implemented
+*   **ISO/IEC 27001:2013:** Information Security Management Systems.
+*   **SOX Section 404:** Internal Control Assessment.
+*   **PBI (Peraturan Bank Indonesia):** Risk Management for Commercial Banks.
+
+---
+
+## 3. Navigation
+*   For the **Functional "Bible"** (The Specs), go to **[Use Cases](./use_cases/README.md)**.
+*   For **Code & Setup**, go to **[Getting Started](./GETTING_STARTED.md)**.
