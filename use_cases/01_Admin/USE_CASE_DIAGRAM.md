@@ -1,46 +1,46 @@
-# Use Case Diagram: Admin Actor
+# Diagram Use Case: Aktor Admin
 
-## Overview
-The Admin actor is responsible for system configuration, security management, and master data maintenance.
+## Gambaran Umum
+Aktor Admin bertanggung jawab untuk konfigurasi sistem, manajemen keamanan, dan pemeliharaan master data.
 
-## Use Case Diagram
+## Diagram Use Case
 
 ```mermaid
 graph LR
     Admin((Admin))
 
-    subgraph "User Access & Security"
-        UC001[UC-ADM-001<br/>Create Internal User]
-        UC002[UC-ADM-002<br/>Update User Role]
-        UC003[UC-ADM-003<br/>Deactivate User]
-        UC004[UC-ADM-004<br/>Reset User Password]
-        UC005[UC-ADM-005<br/>Configure MFA]
+    subgraph "Akses User & Keamanan"
+        UC001[UC-ADM-001<br/>Buat User Internal]
+        UC002[UC-ADM-002<br/>Update Role User]
+        UC003[UC-ADM-003<br/>Nonaktifkan User]
+        UC004[UC-ADM-004<br/>Reset Password User]
+        UC005[UC-ADM-005<br/>Konfigurasi MFA]
         UC006[UC-ADM-006<br/>Whitelist IP]
-        UC007[UC-ADM-007<br/>Manage Session Timeout]
-        UC008[UC-ADM-008<br/>Unlock User Account]
-        UC009[UC-ADM-009<br/>View Active Sessions]
-        UC010[UC-ADM-010<br/>Force Logout User]
+        UC007[UC-ADM-007<br/>Kelola Timeout Sesi]
+        UC008[UC-ADM-008<br/>Unlock Akun User]
+        UC009[UC-ADM-009<br/>Lihat Sesi Aktif]
+        UC010[UC-ADM-010<br/>Paksa Logout User]
     end
 
-    subgraph "Audit & Compliance"
-        UC011[UC-ADM-011<br/>View Audit Trail]
-        UC012[UC-ADM-012<br/>Export Audit Logs]
-        UC013[UC-ADM-013<br/>Configure Retention]
-        UC014[UC-ADM-014<br/>Access Control Report]
-        UC015[UC-ADM-015<br/>Flag Suspicious Activity]
+    subgraph "Audit & Kepatuhan"
+        UC011[UC-ADM-011<br/>Lihat Audit Trail]
+        UC012[UC-ADM-012<br/>Ekspor Log Audit]
+        UC013[UC-ADM-013<br/>Konfigurasi Retensi]
+        UC014[UC-ADM-014<br/>Laporan Kontrol Akses]
+        UC015[UC-ADM-015<br/>Tandai Aktivitas Mencurigakan]
     end
 
-    subgraph "Master Data Management"
-        UC016[UC-ADM-016<br/>Manage Departments]
-        UC017[UC-ADM-017<br/>Configure Approval Matrix]
-        UC018[UC-ADM-018<br/>Manage Currencies]
-        UC019[UC-ADM-019<br/>Manage Tax Codes]
-        UC020[UC-ADM-020<br/>Manage UoM]
-        UC021[UC-ADM-021<br/>Manage Payment Terms]
-        UC022[UC-ADM-022<br/>Manage Templates]
-        UC023[UC-ADM-023<br/>Configure Email Templates]
-        UC024[UC-ADM-024<br/>Manage Holiday Calendar]
-        UC025[UC-ADM-025<br/>View System Health]
+    subgraph "Manajemen Master Data"
+        UC016[UC-ADM-016<br/>Kelola Departemen]
+        UC017[UC-ADM-017<br/>Konfigurasi Matriks Approval]
+        UC018[UC-ADM-018<br/>Kelola Mata Uang]
+        UC019[UC-ADM-019<br/>Kelola Kode Pajak]
+        UC020[UC-ADM-020<br/>Kelola UoM]
+        UC021[UC-ADM-021<br/>Kelola Terms Pembayaran]
+        UC022[UC-ADM-022<br/>Kelola Template]
+        UC023[UC-ADM-023<br/>Konfigurasi Template Email]
+        UC024[UC-ADM-024<br/>Kelola Kalender Libur]
+        UC025[UC-ADM-025<br/>Lihat Kesehatan Sistem]
     end
 
     Admin --> UC001
@@ -70,32 +70,32 @@ graph LR
     Admin --> UC025
 ```
 
-## Use Case Summary Table
+## Tabel Ringkasan Use Case
 
-| ID | Use Case Name | Category |
+| ID | Nama Use Case | Kategori |
 |:---|:---|:---|
-| UC-ADM-001 | Create Internal User | User Access |
-| UC-ADM-002 | Update User Role & Permissions | User Access |
-| UC-ADM-003 | Deactivate/Soft Delete User | User Access |
-| UC-ADM-004 | Reset User Password | Security |
-| UC-ADM-005 | Configure MFA Settings | Security |
-| UC-ADM-006 | Whitelist IP Addresses | Security |
-| UC-ADM-007 | Manage Session Timeouts | Security |
-| UC-ADM-008 | Unlock User Account | Security |
-| UC-ADM-009 | View Active Sessions | Monitoring |
-| UC-ADM-010 | Force Logout User | Security |
-| UC-ADM-011 | View Global Audit Trail | Compliance |
-| UC-ADM-012 | Export Audit Logs | Compliance |
-| UC-ADM-013 | Configure Retention Policy | Compliance |
-| UC-ADM-014 | Generate Access Control Report | Compliance |
-| UC-ADM-015 | Flag Suspicious Activity | Security |
-| UC-ADM-016 | Manage Departments/Cost Centers | Master Data |
-| UC-ADM-017 | Configure Approval Matrix (SoD) | Master Data |
-| UC-ADM-018 | Manage Currency & Exchange Rates | Master Data |
-| UC-ADM-019 | Manage Tax Codes & Rates | Master Data |
-| UC-ADM-020 | Manage Units of Measurement | Master Data |
-| UC-ADM-021 | Manage Payment Terms | Master Data |
-| UC-ADM-022 | Manage Document Templates | Config |
-| UC-ADM-023 | Configure Email Templates | Config |
-| UC-ADM-024 | Manage Holiday Calendar | Config |
-| UC-ADM-025 | View System Health Dashboard | Monitoring |
+| UC-ADM-001 | Buat User Internal | Akses User |
+| UC-ADM-002 | Update Role & Permission User | Akses User |
+| UC-ADM-003 | Nonaktifkan/Soft Delete User | Akses User |
+| UC-ADM-004 | Reset Password User | Keamanan |
+| UC-ADM-005 | Konfigurasi Pengaturan MFA | Keamanan |
+| UC-ADM-006 | Whitelist Alamat IP | Keamanan |
+| UC-ADM-007 | Kelola Timeout Sesi | Keamanan |
+| UC-ADM-008 | Unlock Akun User | Keamanan |
+| UC-ADM-009 | Lihat Sesi Aktif | Monitoring |
+| UC-ADM-010 | Paksa Logout User | Keamanan |
+| UC-ADM-011 | Lihat Audit Trail Global | Kepatuhan |
+| UC-ADM-012 | Ekspor Log Audit | Kepatuhan |
+| UC-ADM-013 | Konfigurasi Kebijakan Retensi | Kepatuhan |
+| UC-ADM-014 | Buat Laporan Kontrol Akses | Kepatuhan |
+| UC-ADM-015 | Tandai Aktivitas Mencurigakan | Keamanan |
+| UC-ADM-016 | Kelola Departemen/Cost Center | Master Data |
+| UC-ADM-017 | Konfigurasi Matriks Approval (SoD) | Master Data |
+| UC-ADM-018 | Kelola Mata Uang & Kurs | Master Data |
+| UC-ADM-019 | Kelola Kode & Tarif Pajak | Master Data |
+| UC-ADM-020 | Kelola Unit of Measurement | Master Data |
+| UC-ADM-021 | Kelola Terms Pembayaran | Master Data |
+| UC-ADM-022 | Kelola Template Dokumen | Konfigurasi |
+| UC-ADM-023 | Konfigurasi Template Email | Konfigurasi |
+| UC-ADM-024 | Kelola Kalender Hari Libur | Konfigurasi |
+| UC-ADM-025 | Lihat Dashboard Kesehatan Sistem | Monitoring |

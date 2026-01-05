@@ -1,91 +1,91 @@
-# Enterprise e-Procurement System: Use Case Specification
+# Spesifikasi Use Case: Sistem e-Procurement Enterprise
 
-## Abstract
-This document serves as the comprehensive Use Case Specification for the development of an enterprise-grade e-Procurement ERP system tailored for a Tier-1 Private Bank. The system is designed to digitize the Procure-to-Pay (P2P) cycle, ensuring operational efficiency while strictly adhering to rigorous banking compliance standards, including **ISO 27001 (Information Security)** and **Sarbanes-Oxley (Auditability)**. The specification details 110 distinct use cases across five primary actors, emphasizing Segregation of Duties (SoD) to mitigate fraud risk.
+## Abstrak
+Dokumen ini berfungsi sebagai Spesifikasi Use Case komprehensif untuk pengembangan sistem ERP e-Procurement tingkat enterprise yang dirancang khusus untuk Bank Swasta Tier-1. Sistem ini dirancang untuk mendigitalisasi siklus Procure-to-Pay (P2P), memastikan efisiensi operasional sambil secara ketat mematuhi standar kepatuhan perbankan yang ketat, termasuk **ISO 27001 (Keamanan Informasi)** dan **Sarbanes-Oxley (Auditabilitas)**. Spesifikasi ini merinci 110 use case berbeda di lima aktor utama, dengan penekanan pada Segregation of Duties (SoD) untuk memitigasi risiko fraud.
 
-## 1. Introduction
+## 1. Pendahuluan
 
-### 1.1 Background & Problem Statement
-In the highly regulated banking sector, procurement processes are often fragmented, relying on manual approvals and disconnected systems. This traditional approach presents significant risks:
-1.  **Compliance Risk:** Difficulty in enforcing audit trails and Segregation of Duties (SoD).
-2.  **Operational Inefficiency:** Slow turnaround times for critical banking supplies.
-3.  **Fraud Vulnerability:** Lack of automated checks against vendor blacklists or budget limits.
+### 1.1 Latar Belakang & Pernyataan Masalah
+Dalam sektor perbankan yang sangat terregulasi, proses pengadaan sering terfragmentasi, bergantung pada persetujuan manual dan sistem yang terpisah. Pendekatan tradisional ini menghadirkan risiko signifikan:
+1.  **Risiko Kepatuhan:** Kesulitan dalam menegakkan audit trail dan Segregation of Duties (SoD).
+2.  **Inefisiensi Operasional:** Waktu penyelesaian yang lambat untuk pasokan perbankan yang kritis.
+3.  **Kerentanan Fraud:** Kurangnya pemeriksaan otomatis terhadap daftar hitam vendor atau batas anggaran.
 
-This project aims to solve these issues by delivering a centralized, secure, and auditable e-Procurement platform.
+Proyek ini bertujuan untuk menyelesaikan masalah-masalah ini dengan menyediakan platform e-Procurement yang terpusat, aman, dan dapat diaudit.
 
-### 1.2 Scope & Boundaries
-**In Scope:**
-*   Master Data Management (Admin).
-*   Purchase Requisition to Purchase Order (Operator/Supervisor).
-*   Vendor Qualification and Bidding (Vendor Portal).
-*   Invoice Processing and Tax Verification (Finance).
-*   Reporting and Analytics.
+### 1.2 Ruang Lingkup & Batasan
+**Dalam Ruang Lingkup:**
+*   Manajemen Master Data (Admin).
+*   Purchase Requisition hingga Purchase Order (Operator/Supervisor).
+*   Kualifikasi Vendor dan Penawaran (Portal Vendor).
+*   Pemrosesan Invoice dan Verifikasi Pajak (Finance).
+*   Pelaporan dan Analitik.
 
-**Out of Scope:**
-*   Core Banking System (CBS) transaction processing (integration only).
-*   HR Payroll processing.
+**Di Luar Ruang Lingkup:**
+*   Pemrosesan transaksi Core Banking System (CBS) (hanya integrasi).
+*   Pemrosesan penggajian HR.
 
-### 1.3 Methodology
-The specifications follow a **Secure SDLC** approach, where security and compliance controls are defined *before* development ("Shift Left"). Use cases are structured to include happy paths, alternative flows, and critical exception handling (e.g., budget blocks, blacklist checks).
+### 1.3 Metodologi
+Spesifikasi mengikuti pendekatan **Secure SDLC**, di mana kontrol keamanan dan kepatuhan didefinisikan *sebelum* pengembangan ("Shift Left"). Use case disusun untuk mencakup happy path, alternative flow, dan penanganan exception kritis (contoh: pemblokiran anggaran, pemeriksaan daftar hitam).
 
-### 1.4 References & Standards
-*   **ISO/IEC 27001:2013:** Controls for Access Control (A.9), Cryptography (A.10), and Operations Security (A.12).
-*   **SOX (Sarbanes-Oxley Act):** Section 404 regarding internal controls and audit trails.
-*   **BI/OJK Regulations:** Guidelines on Data Residency and Electronic System Reliability for Commercial Banks.
+### 1.4 Referensi & Standar
+*   **ISO/IEC 27001:2013:** Kontrol untuk Access Control (A.9), Kriptografi (A.10), dan Operations Security (A.12).
+*   **SOX (Sarbanes-Oxley Act):** Section 404 mengenai kontrol internal dan audit trail.
+*   **Regulasi BI/OJK:** Pedoman tentang Data Residency dan Keandalan Sistem Elektronik untuk Bank Umum.
 
 ---
 
-## 2. System Overview & Actors
+## 2. Gambaran Sistem & Aktor
 
-### 2.1 Actor Descriptions
-The system defines five specific persona types to enforce strict access control:
+### 2.1 Deskripsi Aktor
+Sistem mendefinisikan lima tipe persona spesifik untuk menegakkan kontrol akses yang ketat:
 
-1.  **Admin (System Administrator):**
-    *   *Role:* Configuration, Security, Master Data.
-    *   *Restriction:* Cannot create transactional data (POs/Invoices) to prevent self-dealing.
-2.  **Operator (Procurement Staff):**
-    *   *Role:* Sourcing, Requisitioning, Vendor Management.
-    *   *Focus:* Execution of the procurement lifecycle.
-3.  **Supervisor (Approver/Manager):**
-    *   *Role:* Approval Authority, Budget Oversight, Strategic Decisions.
-    *   *Focus:* Governance and Policy Enforcement.
+1.  **Admin (Administrator Sistem):**
+    *   *Peran:* Konfigurasi, Keamanan, Master Data.
+    *   *Pembatasan:* Tidak dapat membuat data transaksional (PO/Invoice) untuk mencegah self-dealing.
+2.  **Operator (Staff Pengadaan):**
+    *   *Peran:* Sourcing, Requisitioning, Manajemen Vendor.
+    *   *Fokus:* Eksekusi siklus hidup pengadaan.
+3.  **Supervisor (Approver/Manajer):**
+    *   *Peran:* Otoritas Persetujuan, Pengawasan Anggaran, Keputusan Strategis.
+    *   *Fokus:* Governance dan Penegakan Kebijakan.
 4.  **Finance (AP/Treasury):**
-    *   *Role:* Invoice Verification, Tax Compliance, Payment Execution.
-    *   *Focus:* Financial accuracy and reconciliation.
-5.  **Vendor (External):**
-    *   *Role:* Bidding, Order Fulfillment, Invoicing.
-    *   *Focus:* External collaboration.
+    *   *Peran:* Verifikasi Invoice, Kepatuhan Pajak, Eksekusi Pembayaran.
+    *   *Fokus:* Akurasi keuangan dan rekonsiliasi.
+5.  **Vendor (Eksternal):**
+    *   *Peran:* Penawaran, Pemenuhan Pesanan, Invoicing.
+    *   *Fokus:* Kolaborasi eksternal.
 
-### 2.2 Segregation of Duties (SoD) Matrix
-To prevent conflict of interest, the following activities are strictly separated:
+### 2.2 Matriks Segregation of Duties (SoD)
+Untuk mencegah konflik kepentingan, aktivitas berikut dipisahkan secara ketat:
 
-| Role A | Role B | Conflict | Mitigation |
+| Peran A | Peran B | Konflik | Mitigasi |
 |:---|:---|:---|:---|
-| **Requester (Operator)** | **Approver (Supervisor)** | Self-Approval | System prevents a user from approving their own PR/PO. |
-| **Buyer (Operator)** | **Payer (Finance)** | Kickbacks | Buyers cannot execute payments; Finance cannot award contracts. |
-| **Admin** | **Operations** | Data Tampering | Admins cannot edit transaction logs or active POs. |
+| **Requester (Operator)** | **Approver (Supervisor)** | Self-Approval | Sistem mencegah user menyetujui PR/PO mereka sendiri. |
+| **Buyer (Operator)** | **Payer (Finance)** | Kickbacks | Buyer tidak dapat mengeksekusi pembayaran; Finance tidak dapat memberikan kontrak. |
+| **Admin** | **Operations** | Manipulasi Data | Admin tidak dapat mengedit log transaksi atau PO aktif. |
 
 ---
 
-## 3. Use Case Organization
+## 3. Organisasi Use Case
 
-The detailed specifications are organized by Actor in the following directories:
+Spesifikasi detail diorganisir berdasarkan Aktor dalam direktori berikut:
 
-*   **[01_Admin](./01_Admin/Admin_Use_Cases.md):** System Configuration & Security (UC-ADM-0xx).
+*   **[01_Admin](./01_Admin/Admin_Use_Cases.md):** Konfigurasi Sistem & Keamanan (UC-ADM-0xx).
 *   **[02_Operator](./02_Operator/Operator_Use_Cases.md):** Sourcing & Requisitions (UC-OP-0xx).
-*   **[03_Supervisor](./03_Supervisor/Supervisor_Use_Cases.md):** Approvals & Analytics (UC-SUP-0xx).
-*   **[04_Finance](./04_Finance/Finance_Use_Cases.md):** Payments & Reconciliation (UC-FIN-0xx).
-*   **[05_Vendor](./05_Vendor/Vendor_Use_Cases.md):** Portal & Fulfillment (UC-VEN-0xx).
+*   **[03_Supervisor](./03_Supervisor/Supervisor_Use_Cases.md):** Persetujuan & Analitik (UC-SUP-0xx).
+*   **[04_Finance](./04_Finance/Finance_Use_Cases.md):** Pembayaran & Rekonsiliasi (UC-FIN-0xx).
+*   **[05_Vendor](./05_Vendor/Vendor_Use_Cases.md):** Portal & Pemenuhan (UC-VEN-0xx).
 
 ---
 
-## 4. Compliance Framework Implementation
+## 4. Implementasi Kerangka Kepatuhan
 
-### 4.1 ISO 27001 Controls
-*   **Access Control:** All use cases enforce Role-Based Access Control (RBAC).
-*   **Audit Logging:** Critical actions (Approve, Reject, Login) trigger immutable audit logs (See UC-ADM-011).
-*   **Cryptography:** Passwords (UC-VEN-005) and Bids (UC-VEN-007) are encrypted.
+### 4.1 Kontrol ISO 27001
+*   **Access Control:** Semua use case menegakkan Role-Based Access Control (RBAC).
+*   **Audit Logging:** Tindakan kritis (Approve, Reject, Login) memicu audit log yang tidak dapat diubah (Lihat UC-ADM-011).
+*   **Kriptografi:** Password (UC-VEN-005) dan Bid (UC-VEN-007) dienkripsi.
 
-### 4.2 Banking Specifics
-*   **Four-Eyes Principle:** Critical actions (Blacklisting, Payments > Threshold) require dual approval.
-*   **KYC/AML:** Vendor onboarding (UC-OP-020) includes mandatory document verification.
+### 4.2 Spesifik Perbankan
+*   **Prinsip Four-Eyes:** Tindakan kritis (Blacklisting, Pembayaran > Threshold) memerlukan dual approval.
+*   **KYC/AML:** Onboarding vendor (UC-OP-020) mencakup verifikasi dokumen wajib.

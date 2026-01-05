@@ -1,51 +1,51 @@
-# Security Guidelines
-**Version:** 1.0
-**Date:** January 2026
-**Compliance:** ISO 27001, SOX, PCI-DSS (for payment data)
+# Panduan Keamanan
+**Versi:** 1.0
+**Tanggal:** Januari 2026
+**Kepatuhan:** ISO 27001, SOX, PCI-DSS (untuk data pembayaran)
 
 ---
 
-## 1. Authentication & Authorization
+## 1. Autentikasi & Otorisasi
 
-### 1.1 JWT Token Management
+### 1.1 Manajemen Token JWT
 
 **Access Token:**
-- Expiry: 1 hour (3600 seconds)
-- Storage: Never store in localStorage. Use httpOnly cookies or secure memory.
-- Refresh: Use refresh token before expiry.
+- Kadaluarsa: 1 jam (3600 detik)
+- Penyimpanan: Jangan pernah simpan di localStorage. Gunakan httpOnly cookies atau secure memory.
+- Refresh: Gunakan refresh token sebelum kadaluarsa.
 
 **Refresh Token:**
-- Expiry: 7 days
-- Storage: Secure httpOnly cookie
-- Rotation: Issue new refresh token on each use
+- Kadaluarsa: 7 hari
+- Penyimpanan: Secure httpOnly cookie
+- Rotasi: Terbitkan refresh token baru setiap penggunaan
 
-### 1.2 Password Policy
+### 1.2 Kebijakan Password
 
-| Rule | Requirement |
+| Aturan | Persyaratan |
 |:---|:---|
-| Minimum Length | 12 characters |
-| Complexity | Upper, Lower, Number, Special |
-| History | Cannot reuse last 5 passwords |
-| Expiry | 90 days for internal users |
-| Lockout | 5 failed attempts → 30 min lock |
+| Panjang Minimum | 12 karakter |
+| Kompleksitas | Huruf Besar, Huruf Kecil, Angka, Karakter Khusus |
+| Riwayat | Tidak dapat menggunakan 5 password terakhir |
+| Kadaluarsa | 90 hari untuk user internal |
+| Penguncian | 5 percobaan gagal → kunci 30 menit |
 
 ### 1.3 Multi-Factor Authentication (MFA)
 
-**Required for:**
-- Admin role
-- Supervisor role (approval actions)
-- Finance role (payment execution)
-- Any action > Rp 100,000,000
+**Wajib untuk:**
+- Role Admin
+- Role Supervisor (aksi persetujuan)
+- Role Finance (eksekusi pembayaran)
+- Semua aksi > Rp 100.000.000
 
-**Methods:**
+**Metode:**
 - TOTP (Google Authenticator)
-- Email OTP (fallback)
+- Email OTP (cadangan)
 
 ---
 
 ## 2. Role-Based Access Control (RBAC)
 
-### 2.1 Role Hierarchy
+### 2.1 Hirarki Role
 
 ```
 SUPER_ADMIN
@@ -55,7 +55,7 @@ SUPER_ADMIN
                 └── VIEWER
 ```
 
-### 2.2 Permission Matrix
+### 2.2 Matriks Permission
 
 | Permission | ADMIN | OPERATOR | SUPERVISOR | FINANCE | VENDOR |
 |:---|:---:|:---:|:---:|:---:|:---:|
@@ -70,66 +70,66 @@ SUPER_ADMIN
 
 ### 2.3 Segregation of Duties (SoD)
 
-**Prohibited Combinations:**
-| Action A | Action B | Conflict |
+**Kombinasi yang Dilarang:**
+| Aksi A | Aksi B | Konflik |
 |:---|:---|:---|
-| Create PR | Approve same PR | Self-approval |
-| Award Vendor | Execute Payment to same Vendor | Kickback risk |
-| Create User | Approve high-value transactions | Privilege escalation |
+| Buat PR | Setujui PR yang sama | Self-approval |
+| Award Vendor | Eksekusi Pembayaran ke Vendor yang sama | Risiko kickback |
+| Buat User | Setujui transaksi bernilai tinggi | Eskalasi privilege |
 
 ---
 
-## 3. Data Protection
+## 3. Perlindungan Data
 
-### 3.1 Encryption
+### 3.1 Enkripsi
 
-**At Rest:**
-- Database: PostgreSQL with TDE (Transparent Data Encryption)
-- Files: AES-256 encryption for uploaded documents
-- Backups: Encrypted with separate key
+**At Rest (Saat Disimpan):**
+- Database: PostgreSQL dengan TDE (Transparent Data Encryption)
+- File: Enkripsi AES-256 untuk dokumen yang diupload
+- Backup: Dienkripsi dengan key terpisah
 
-**In Transit:**
+**In Transit (Saat Transfer):**
 - TLS 1.3 minimum
-- Certificate pinning for mobile apps
-- No mixed content (HTTP/HTTPS)
+- Certificate pinning untuk aplikasi mobile
+- Tidak ada mixed content (HTTP/HTTPS)
 
-### 3.2 Sensitive Data Handling
+### 3.2 Penanganan Data Sensitif
 
-| Data Type | Storage | Display | Logging |
+| Tipe Data | Penyimpanan | Tampilan | Logging |
 |:---|:---|:---|:---|
-| Password | Bcrypt hash | Never | Never |
-| Bank Account | Encrypted | Masked (****1234) | Masked |
-| Tax ID | Encrypted | Full (authorized) | Masked |
-| JWT Token | Redis/DB | Never | Never |
+| Password | Hash Bcrypt | Tidak Pernah | Tidak Pernah |
+| Rekening Bank | Terenkripsi | Masked (****1234) | Masked |
+| NPWP | Terenkripsi | Penuh (jika terotorisasi) | Masked |
+| Token JWT | Redis/DB | Tidak Pernah | Tidak Pernah |
 
-### 3.3 Data Masking Rules
+### 3.3 Aturan Data Masking
 
 ```java
-// Bank Account: Show last 4 digits
+// Rekening Bank: Tampilkan 4 digit terakhir
 "1234567890" → "******7890"
 
-// Tax ID (NPWP): Show last 4 digits
+// NPWP: Tampilkan 4 digit terakhir
 "01.234.567.8-901.000" → "**.***.***.*-***.000"
 
-// Email: Show first char and domain
+// Email: Tampilkan karakter pertama dan domain
 "john.doe@bank.com" → "j****@bank.com"
 ```
 
 ---
 
-## 4. Input Validation
+## 4. Validasi Input
 
-### 4.1 General Rules
+### 4.1 Aturan Umum
 
-1. **Whitelist Validation:** Only accept expected characters.
-2. **Length Limits:** Enforce max length on all fields.
-3. **Type Checking:** Validate data types strictly.
-4. **Sanitization:** Escape special characters for SQL/HTML.
+1. **Validasi Whitelist:** Hanya terima karakter yang diharapkan.
+2. **Batas Panjang:** Terapkan max length pada semua field.
+3. **Pengecekan Tipe:** Validasi tipe data secara ketat.
+4. **Sanitasi:** Escape karakter khusus untuk SQL/HTML.
 
-### 4.2 Common Patterns
+### 4.2 Pola Umum
 
 ```java
-// Amount: Positive decimal, max 2 decimal places
+// Amount: Desimal positif, maksimal 2 desimal
 @DecimalMin("0.01")
 @Digits(integer = 15, fraction = 2)
 private BigDecimal amount;
@@ -144,37 +144,37 @@ private String email;
 private String id;
 ```
 
-### 4.3 File Upload Security
+### 4.3 Keamanan Upload File
 
-| Check | Rule |
+| Pengecekan | Aturan |
 |:---|:---|
-| File Type | Whitelist: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG |
-| File Size | Max 20 MB |
-| Content | Virus scan before storage |
-| Filename | Sanitize, remove path traversal |
-| Storage | Never in webroot, use signed URLs |
+| Tipe File | Whitelist: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG |
+| Ukuran File | Maksimal 20 MB |
+| Konten | Scan virus sebelum penyimpanan |
+| Nama File | Sanitasi, hapus path traversal |
+| Penyimpanan | Tidak pernah di webroot, gunakan signed URLs |
 
 ---
 
 ## 5. Audit Logging
 
-### 5.1 What to Log
+### 5.1 Yang Harus Di-log
 
-**Always Log:**
-- Authentication events (login, logout, failed attempts)
-- Authorization failures (403 errors)
-- Data modifications (CREATE, UPDATE, DELETE)
-- Approval actions
-- Payment executions
-- Admin actions (user creation, role changes)
+**Selalu Di-log:**
+- Event autentikasi (login, logout, percobaan gagal)
+- Kegagalan otorisasi (error 403)
+- Modifikasi data (CREATE, UPDATE, DELETE)
+- Aksi persetujuan
+- Eksekusi pembayaran
+- Aksi admin (pembuatan user, perubahan role)
 
-**Never Log:**
-- Passwords (even hashed)
-- Full credit card numbers
-- Full bank account numbers
-- JWT tokens
+**Tidak Pernah Di-log:**
+- Password (bahkan yang sudah di-hash)
+- Nomor kartu kredit lengkap
+- Nomor rekening bank lengkap
+- Token JWT
 
-### 5.2 Log Format
+### 5.2 Format Log
 
 ```json
 {
@@ -188,40 +188,40 @@ private String id;
   "resource_type": "PURCHASE_ORDER",
   "resource_id": "po-001",
   "action": "APPROVE",
-  "old_status": "PENDING_APPROVAL",
+  "old_status": "PENDING",
   "new_status": "APPROVED",
   "correlation_id": "req-12345"
 }
 ```
 
-### 5.3 Retention Policy
+### 5.3 Kebijakan Retensi
 
-| Log Type | Retention |
+| Tipe Log | Retensi |
 |:---|:---|
-| Authentication | 2 years |
-| Transaction Audit | 7 years (SOX requirement) |
-| System/Debug | 30 days |
+| Autentikasi | 2 tahun |
+| Audit Transaksi | 7 tahun (persyaratan SOX) |
+| Sistem/Debug | 30 hari |
 
 ---
 
-## 6. API Security
+## 6. Keamanan API
 
 ### 6.1 Rate Limiting
 
-| Endpoint Type | Limit |
+| Tipe Endpoint | Limit |
 |:---|:---|
-| Login | 5 requests/minute per IP |
-| Password Reset | 3 requests/hour per email |
-| General API | 1000 requests/minute per user |
-| File Upload | 10 requests/minute per user |
+| Login | 5 request/menit per IP |
+| Reset Password | 3 request/jam per email |
+| API Umum | 1000 request/menit per user |
+| Upload File | 10 request/menit per user |
 
-### 6.2 CORS Policy
+### 6.2 Kebijakan CORS
 
 ```yaml
 Allowed Origins:
   - https://portal.eprocurement.xyz
   - https://vendor.eprocurement.xyz
-  - http://localhost:3000 (dev only)
+  - http://localhost:3000 (hanya dev)
 
 Allowed Methods: GET, POST, PUT, PATCH, DELETE
 Allowed Headers: Authorization, Content-Type, X-Request-ID
@@ -240,22 +240,22 @@ Content-Security-Policy: default-src 'self'
 
 ---
 
-## 7. Incident Response
+## 7. Respons Insiden
 
-### 7.1 Security Event Classification
+### 7.1 Klasifikasi Event Keamanan
 
-| Level | Example | Response Time |
+| Level | Contoh | Waktu Respons |
 |:---|:---|:---|
-| P1 - Critical | Data breach, System compromise | 15 minutes |
-| P2 - High | Brute force attack, Unauthorized access | 1 hour |
-| P3 - Medium | Multiple failed logins, Suspicious activity | 4 hours |
-| P4 - Low | Policy violation, Minor anomaly | 24 hours |
+| P1 - Kritis | Pelanggaran data, Kompromi sistem | 15 menit |
+| P2 - Tinggi | Serangan brute force, Akses tidak sah | 1 jam |
+| P3 - Menengah | Login gagal berulang, Aktivitas mencurigakan | 4 jam |
+| P4 - Rendah | Pelanggaran kebijakan, Anomali minor | 24 jam |
 
-### 7.2 Response Steps
+### 7.2 Langkah Respons
 
-1. **Detect:** Automated alerts from SIEM
-2. **Contain:** Isolate affected systems/users
-3. **Investigate:** Analyze logs, identify scope
-4. **Remediate:** Patch vulnerability, reset credentials
-5. **Report:** Document incident, notify stakeholders
-6. **Learn:** Update security controls
+1. **Deteksi:** Alert otomatis dari SIEM
+2. **Containment:** Isolasi sistem/user yang terdampak
+3. **Investigasi:** Analisis log, identifikasi scope
+4. **Remediasi:** Patch kerentanan, reset kredensial
+5. **Lapor:** Dokumentasikan insiden, notifikasi stakeholder
+6. **Belajar:** Update kontrol keamanan

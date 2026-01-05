@@ -1,56 +1,56 @@
-# Use Case Diagram: Operator Actor
+# Diagram Use Case: Aktor Operator
 
-## Overview
-The Operator actor is responsible for executing the procurement lifecycle from requisition to goods receipt.
+## Gambaran Umum
+Aktor Operator bertanggung jawab untuk mengeksekusi siklus hidup pengadaan dari requisition hingga penerimaan barang.
 
-## Use Case Diagram
+## Diagram Use Case
 
 ```mermaid
 graph LR
     Operator((Operator))
 
-    subgraph "Requisition Management"
-        UC001[UC-OP-001<br/>Create PR]
-        UC002[UC-OP-002<br/>Upload PR Attachments]
-        UC003[UC-OP-003<br/>Cancel PR]
+    subgraph "Manajemen Requisition"
+        UC001[UC-OP-001<br/>Buat PR]
+        UC002[UC-OP-002<br/>Upload Lampiran PR]
+        UC003[UC-OP-003<br/>Batalkan PR]
     end
 
     subgraph "Sourcing & RFQ"
-        UC004[UC-OP-004<br/>Create RFQ]
-        UC005[UC-OP-005<br/>Invite Vendors]
-        UC006[UC-OP-006<br/>Manage RFQ Q&A]
-        UC007[UC-OP-007<br/>Extend Deadline]
-        UC008[UC-OP-008<br/>Compare Quotations]
-        UC009[UC-OP-009<br/>Request Clarification]
+        UC004[UC-OP-004<br/>Buat RFQ]
+        UC005[UC-OP-005<br/>Undang Vendor]
+        UC006[UC-OP-006<br/>Kelola Q&A RFQ]
+        UC007[UC-OP-007<br/>Perpanjang Deadline]
+        UC008[UC-OP-008<br/>Bandingkan Quotation]
+        UC009[UC-OP-009<br/>Minta Klarifikasi]
         UC010[UC-OP-010<br/>Award Vendor]
-        UC011[UC-OP-011<br/>Create Sole Source Waiver]
+        UC011[UC-OP-011<br/>Buat Waiver Sole Source]
     end
 
     subgraph "Purchase Orders"
-        UC012[UC-OP-012<br/>Generate PO]
-        UC013[UC-OP-013<br/>Send PO to Vendor]
-        UC014[UC-OP-014<br/>Revise PO]
-        UC015[UC-OP-015<br/>Cancel PO]
+        UC012[UC-OP-012<br/>Buat PO]
+        UC013[UC-OP-013<br/>Kirim PO ke Vendor]
+        UC014[UC-OP-014<br/>Revisi PO]
+        UC015[UC-OP-015<br/>Batalkan PO]
     end
 
-    subgraph "Contracts"
-        UC016[UC-OP-016<br/>Draft Contract]
-        UC017[UC-OP-017<br/>Upload Signed Contract]
-        UC018[UC-OP-018<br/>Monitor Contract Expiry]
+    subgraph "Kontrak"
+        UC016[UC-OP-016<br/>Draft Kontrak]
+        UC017[UC-OP-017<br/>Upload Kontrak Tertandatangani]
+        UC018[UC-OP-018<br/>Monitor Kadaluarsa Kontrak]
     end
 
-    subgraph "Vendor Management"
-        UC019[UC-OP-019<br/>Invite New Vendor]
-        UC020[UC-OP-020<br/>Verify Vendor KYC]
-        UC021[UC-OP-021<br/>Evaluate Vendor Performance]
-        UC022[UC-OP-022<br/>Search Vendor Database]
+    subgraph "Manajemen Vendor"
+        UC019[UC-OP-019<br/>Undang Vendor Baru]
+        UC020[UC-OP-020<br/>Verifikasi KYC Vendor]
+        UC021[UC-OP-021<br/>Evaluasi Kinerja Vendor]
+        UC022[UC-OP-022<br/>Cari Database Vendor]
         UC023[UC-OP-023<br/>Blacklist Vendor]
     end
 
-    subgraph "Inventory & Receipt"
-        UC024[UC-OP-024<br/>Create GRN]
-        UC025[UC-OP-025<br/>Inspect Goods QC]
-        UC026[UC-OP-026<br/>Return Damaged Goods]
+    subgraph "Inventori & Penerimaan"
+        UC024[UC-OP-024<br/>Buat GRN]
+        UC025[UC-OP-025<br/>Inspeksi Barang QC]
+        UC026[UC-OP-026<br/>Kembalikan Barang Rusak]
     end
 
     Operator --> UC001
@@ -81,33 +81,33 @@ graph LR
     Operator --> UC026
 ```
 
-## Use Case Summary Table
+## Tabel Ringkasan Use Case
 
-| ID | Use Case Name | Category |
+| ID | Nama Use Case | Kategori |
 |:---|:---|:---|
-| UC-OP-001 | Create Purchase Requisition | Requisition |
-| UC-OP-002 | Upload PR Attachments | Requisition |
-| UC-OP-003 | Cancel Purchase Requisition | Requisition |
-| UC-OP-004 | Create Request for Quotation | Sourcing |
-| UC-OP-005 | Invite Vendors to Bid | Sourcing |
-| UC-OP-006 | Manage RFQ Q&A (Addendum) | Sourcing |
-| UC-OP-007 | Extend Bidding Deadline | Sourcing |
-| UC-OP-008 | Compare Vendor Quotations | Sourcing |
-| UC-OP-009 | Request Technical Clarification | Sourcing |
-| UC-OP-010 | Select Preferred Vendor (Awarding) | Sourcing |
-| UC-OP-011 | Create Waiver for Sole Sourcing | Sourcing |
-| UC-OP-012 | Generate Purchase Order | Ordering |
-| UC-OP-013 | Send PO to Vendor | Ordering |
-| UC-OP-014 | Revise PO (Change Order) | Ordering |
-| UC-OP-015 | Cancel Purchase Order | Ordering |
-| UC-OP-016 | Draft Contract Agreement | Contract |
-| UC-OP-017 | Upload Signed Contract | Contract |
-| UC-OP-018 | Monitor Contract Expiry | Contract |
-| UC-OP-019 | Invite New Vendor Registration | Vendor Mgmt |
-| UC-OP-020 | Verify Vendor Documents (KYC) | Vendor Mgmt |
-| UC-OP-021 | Evaluate Vendor Performance | Vendor Mgmt |
-| UC-OP-022 | Search Vendor Database | Vendor Mgmt |
-| UC-OP-023 | Blacklist/Suspend Vendor | Vendor Mgmt |
-| UC-OP-024 | Create Goods Receipt Note | Receiving |
-| UC-OP-025 | Inspect Received Goods (QC) | Receiving |
-| UC-OP-026 | Return Damaged Goods (RTV) | Receiving |
+| UC-OP-001 | Buat Purchase Requisition | Requisition |
+| UC-OP-002 | Upload Lampiran PR | Requisition |
+| UC-OP-003 | Batalkan Purchase Requisition | Requisition |
+| UC-OP-004 | Buat Request for Quotation | Sourcing |
+| UC-OP-005 | Undang Vendor untuk Penawaran | Sourcing |
+| UC-OP-006 | Kelola Q&A RFQ (Addendum) | Sourcing |
+| UC-OP-007 | Perpanjang Deadline Penawaran | Sourcing |
+| UC-OP-008 | Bandingkan Quotation Vendor | Sourcing |
+| UC-OP-009 | Minta Klarifikasi Teknis | Sourcing |
+| UC-OP-010 | Pilih Vendor Pemenang (Awarding) | Sourcing |
+| UC-OP-011 | Buat Waiver untuk Sole Sourcing | Sourcing |
+| UC-OP-012 | Buat Purchase Order | Ordering |
+| UC-OP-013 | Kirim PO ke Vendor | Ordering |
+| UC-OP-014 | Revisi PO (Change Order) | Ordering |
+| UC-OP-015 | Batalkan Purchase Order | Ordering |
+| UC-OP-016 | Draft Perjanjian Kontrak | Kontrak |
+| UC-OP-017 | Upload Kontrak Tertandatangani | Kontrak |
+| UC-OP-018 | Monitor Kadaluarsa Kontrak | Kontrak |
+| UC-OP-019 | Undang Registrasi Vendor Baru | Manajemen Vendor |
+| UC-OP-020 | Verifikasi Dokumen Vendor (KYC) | Manajemen Vendor |
+| UC-OP-021 | Evaluasi Kinerja Vendor | Manajemen Vendor |
+| UC-OP-022 | Cari Database Vendor | Manajemen Vendor |
+| UC-OP-023 | Blacklist/Suspend Vendor | Manajemen Vendor |
+| UC-OP-024 | Buat Goods Receipt Note | Penerimaan |
+| UC-OP-025 | Inspeksi Barang Diterima (QC) | Penerimaan |
+| UC-OP-026 | Kembalikan Barang Rusak (RTV) | Penerimaan |

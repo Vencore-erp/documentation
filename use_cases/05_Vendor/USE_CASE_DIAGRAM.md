@@ -1,40 +1,40 @@
-# Use Case Diagram: Vendor Actor
+# Diagram Use Case: Aktor Vendor
 
-## Overview
-The Vendor actor is an external user responsible for registration, bidding, order fulfillment, and invoice submission.
+## Gambaran Umum
+Aktor Vendor adalah pengguna eksternal yang bertanggung jawab untuk registrasi, penawaran, pemenuhan pesanan, dan pengajuan invoice.
 
-## Use Case Diagram
+## Diagram Use Case
 
 ```mermaid
 graph LR
     Vendor((Vendor))
 
-    subgraph "Registration & Profile"
-        UC001[UC-VEN-001<br/>Register Company]
-        UC002[UC-VEN-002<br/>Update Profile]
-        UC003[UC-VEN-003<br/>Upload Legal Docs]
-        UC004[UC-VEN-004<br/>Manage Bank Account]
+    subgraph "Registrasi & Profil"
+        UC001[UC-VEN-001<br/>Daftar Perusahaan]
+        UC002[UC-VEN-002<br/>Update Profil]
+        UC003[UC-VEN-003<br/>Upload Dokumen Legal]
+        UC004[UC-VEN-004<br/>Kelola Rekening Bank]
         UC005[UC-VEN-005<br/>Reset Password]
     end
 
-    subgraph "Bidding & Orders"
-        UC006[UC-VEN-006<br/>View Open RFQs]
-        UC007[UC-VEN-007<br/>Submit Commercial Bid]
-        UC008[UC-VEN-008<br/>Submit Technical Proposal]
-        UC009[UC-VEN-009<br/>Respond to Clarification]
-        UC010[UC-VEN-010<br/>Acknowledge PO]
-        UC011[UC-VEN-011<br/>Reject PO]
-        UC012[UC-VEN-012<br/>Request Delivery Extension]
+    subgraph "Penawaran & Pesanan"
+        UC006[UC-VEN-006<br/>Lihat RFQ Terbuka]
+        UC007[UC-VEN-007<br/>Submit Penawaran Komersial]
+        UC008[UC-VEN-008<br/>Submit Proposal Teknis]
+        UC009[UC-VEN-009<br/>Respons Klarifikasi]
+        UC010[UC-VEN-010<br/>Konfirmasi PO]
+        UC011[UC-VEN-011<br/>Tolak PO]
+        UC012[UC-VEN-012<br/>Minta Perpanjangan Pengiriman]
     end
 
-    subgraph "Fulfillment & Billing"
-        UC013[UC-VEN-013<br/>Create ASN]
-        UC014[UC-VEN-014<br/>Submit Digital Invoice]
-        UC015[UC-VEN-015<br/>Check Payment Status]
-        UC016[UC-VEN-016<br/>View Vendor Scorecard]
-        UC017[UC-VEN-017<br/>Respond to Dispute]
-        UC018[UC-VEN-018<br/>Update Catalog Items]
-        UC019[UC-VEN-019<br/>Chat with Buyer]
+    subgraph "Pemenuhan & Penagihan"
+        UC013[UC-VEN-013<br/>Buat ASN]
+        UC014[UC-VEN-014<br/>Submit Invoice Digital]
+        UC015[UC-VEN-015<br/>Cek Status Pembayaran]
+        UC016[UC-VEN-016<br/>Lihat Scorecard Vendor]
+        UC017[UC-VEN-017<br/>Respons Dispute]
+        UC018[UC-VEN-018<br/>Update Item Katalog]
+        UC019[UC-VEN-019<br/>Chat dengan Buyer]
         UC020[UC-VEN-020<br/>Download PO PDF]
     end
 
@@ -60,27 +60,27 @@ graph LR
     Vendor --> UC020
 ```
 
-## Use Case Summary Table
+## Tabel Ringkasan Use Case
 
-| ID | Use Case Name | Category |
+| ID | Nama Use Case | Kategori |
 |:---|:---|:---|
-| UC-VEN-001 | Register Company Account | Onboarding |
-| UC-VEN-002 | Update Company Profile | Profile |
-| UC-VEN-003 | Upload Legal Documents | Compliance |
-| UC-VEN-004 | Manage Bank Account Details | Profile |
-| UC-VEN-005 | Reset Password | Security |
-| UC-VEN-006 | View Open RFQs | Bidding |
-| UC-VEN-007 | Submit Commercial Bid | Bidding |
-| UC-VEN-008 | Submit Technical Proposal | Bidding |
-| UC-VEN-009 | Respond to Clarification | Bidding |
-| UC-VEN-010 | Acknowledge Purchase Order | Orders |
-| UC-VEN-011 | Reject Purchase Order | Orders |
-| UC-VEN-012 | Request Delivery Extension | Orders |
-| UC-VEN-013 | Create Advance Shipping Notice | Fulfillment |
-| UC-VEN-014 | Submit Digital Invoice | Billing |
-| UC-VEN-015 | Check Payment Status | Billing |
-| UC-VEN-016 | View Vendor Scorecard | Performance |
-| UC-VEN-017 | Respond to Dispute | Billing |
-| UC-VEN-018 | Update Catalog Items | Catalog |
-| UC-VEN-019 | Chat with Buyer | Communication |
-| UC-VEN-020 | Download PO PDF | Utility |
+| UC-VEN-001 | Daftar Akun Perusahaan | Onboarding |
+| UC-VEN-002 | Update Profil Perusahaan | Profil |
+| UC-VEN-003 | Upload Dokumen Legal | Kepatuhan |
+| UC-VEN-004 | Kelola Detail Rekening Bank | Profil |
+| UC-VEN-005 | Reset Password | Keamanan |
+| UC-VEN-006 | Lihat RFQ Terbuka | Penawaran |
+| UC-VEN-007 | Submit Penawaran Komersial | Penawaran |
+| UC-VEN-008 | Submit Proposal Teknis | Penawaran |
+| UC-VEN-009 | Respons Klarifikasi | Penawaran |
+| UC-VEN-010 | Konfirmasi Purchase Order | Pesanan |
+| UC-VEN-011 | Tolak Purchase Order | Pesanan |
+| UC-VEN-012 | Minta Perpanjangan Pengiriman | Pesanan |
+| UC-VEN-013 | Buat Advance Shipping Notice | Pemenuhan |
+| UC-VEN-014 | Submit Invoice Digital | Penagihan |
+| UC-VEN-015 | Cek Status Pembayaran | Penagihan |
+| UC-VEN-016 | Lihat Scorecard Vendor | Kinerja |
+| UC-VEN-017 | Respons Dispute | Penagihan |
+| UC-VEN-018 | Update Item Katalog | Katalog |
+| UC-VEN-019 | Chat dengan Buyer | Komunikasi |
+| UC-VEN-020 | Download PO PDF | Utilitas |

@@ -1,25 +1,25 @@
-# System Design Document: Enterprise e-Procurement ERP
-**Version:** 2.0 (Event-Driven Microservices)
-**Date:** January 2026
-**Author:** Technical Architect Team
-**Status:** Active Development
+# Dokumen Desain Sistem: Sistem e-Procurement Enterprise
+**Versi:** 2.0 (Event-Driven Microservices)
+**Tanggal:** Januari 2026
+**Penulis:** Tim Arsitek Teknis
+**Status:** Dalam Pengembangan
 
 ---
 
-## 1. High-Level Architecture
+## 1. Arsitektur Tingkat Tinggi
 
-### 1.1 Architectural Style
-The system adopts an **Event-Driven Microservices Architecture** to ensure loose coupling, high scalability, and independent deployment.
-*   **Synchronous Communication (REST/gRPC):** Used for direct client-to-service requests (e.g., UI fetching data) or critical real-time queries.
-*   **Asynchronous Communication (Kafka):** Used for inter-service state changes (e.g., "PO Issued" -> "Budget Deducted") to ensure resilience and eventual consistency.
+### 1.1 Gaya Arsitektur
+Sistem mengadopsi **Arsitektur Microservices Berbasis Event (Event-Driven)** untuk memastikan loose coupling, skalabilitas tinggi, dan deployment independen.
+*   **Komunikasi Sinkron (REST/gRPC):** Digunakan untuk request langsung dari klien ke service (contoh: UI mengambil data) atau query real-time yang kritis.
+*   **Komunikasi Asinkron (Kafka):** Digunakan untuk perubahan state antar service (contoh: "PO Diterbitkan" -> "Budget Dipotong") untuk memastikan ketahanan dan eventual consistency.
 
-### 1.2 System Context (C4 Container Diagram)
+### 1.2 Konteks Sistem (Diagram C4 Container)
 
 ```mermaid
 graph TD
-    User((User)) -->|HTTPS/JSON| Gateway[API Gateway (Kong/Spring Cloud)]
+    User((Pengguna)) -->|HTTPS/JSON| Gateway[API Gateway - Spring Cloud]
     
-    subgraph "Internal Network (Private Subnet)"
+    subgraph "Jaringan Internal - Private Subnet"
         Gateway -->|Routes| Auth[Auth Service]
         Gateway -->|Routes| Proc[Procurement Service]
         Gateway -->|Routes| Fin[Finance Service]
@@ -27,121 +27,121 @@ graph TD
         Gateway -->|Routes| Inv[Inventory Service]
         
         %% Database per Service
-        Auth -.->|JDBC| DB_Auth[(Auth DB)]
-        Proc -.->|JDBC| DB_Proc[(Procurement DB)]
-        Fin -.->|JDBC| DB_Fin[(Finance DB)]
-        Vendor -.->|JDBC| DB_Vendor[(Vendor DB)]
-        Inv -.->|JDBC| DB_Inv[(Inventory DB)]
+        Auth -.->|JDBC| DB_Auth[(DB Auth)]
+        Proc -.->|JDBC| DB_Proc[(DB Procurement)]
+        Fin -.->|JDBC| DB_Fin[(DB Finance)]
+        Vendor -.->|JDBC| DB_Vendor[(DB Vendor)]
+        Inv -.->|JDBC| DB_Inv[(DB Inventory)]
         
         %% Event Bus
-        Proc --o|Publishes| Kafka{Apache Kafka}
-        Fin --o|Consumes| Kafka
-        Inv --o|Publishes| Kafka
-        Notif[Notification Service] --o|Consumes| Kafka
+        Proc --o|Publish| Kafka{Apache Kafka}
+        Fin --o|Consume| Kafka
+        Inv --o|Publish| Kafka
+        Notif[Notification Service] --o|Consume| Kafka
     end
 ```
 
-### 1.3 Key Components
+### 1.3 Komponen Utama
 1.  **API Gateway:**
-    *   **Responsibilities:** Single Entry Point, SSL Termination, JWT Validation, Rate Limiting (Token Bucket), Request Routing.
-    *   **Technology:** Spring Cloud Gateway.
+    *   **Tanggung Jawab:** Titik Masuk Tunggal, SSL Termination, Validasi JWT, Rate Limiting (Token Bucket), Request Routing.
+    *   **Teknologi:** Spring Cloud Gateway.
 2.  **Message Broker:**
-    *   **Responsibilities:** Asynchronous Event Bus, Log compaction for state replay.
-    *   **Technology:** Apache Kafka (Confluent Platform).
+    *   **Tanggung Jawab:** Event Bus Asinkron, Log compaction untuk replay state.
+    *   **Teknologi:** Apache Kafka (Confluent Platform).
 3.  **Discovery & Config:**
     *   **Discovery:** Docker DNS / K8s Service Discovery.
-    *   **Config:** Local `application.properties` (per user constraints).
+    *   **Config:** `application.properties` lokal (sesuai batasan user).
 
 ---
 
-## 2. Service Decomposition (Bounded Contexts)
+## 2. Dekomposisi Service (Bounded Contexts)
 
 ### 2.1 Auth Service (`/auth-service`)
-*   **Responsibility:** Identity Management, Token Issuance (Access/Refresh), RBAC.
-*   **Key Tables:** `users`, `roles`, `permissions`.
-*   **Endpoints:** `POST /login`, `POST /refresh-token`, `POST /validate`.
+*   **Tanggung Jawab:** Manajemen Identitas, Penerbitan Token (Access/Refresh), RBAC.
+*   **Tabel Utama:** `users`, `roles`, `permissions`.
+*   **Endpoint:** `POST /login`, `POST /refresh-token`, `POST /validate`.
 
 ### 2.2 Procurement Service (`/procurement-service`)
-*   **Responsibility:** Core Procurement Lifecycle (PR -> RFQ -> PO).
-*   **Key Tables:** `purchase_requisition`, `rfq`, `purchase_order`, `po_items`.
-*   **Events Published:**
+*   **Tanggung Jawab:** Siklus Hidup Pengadaan Inti (PR -> RFQ -> PO).
+*   **Tabel Utama:** `purchase_requisition`, `rfq`, `purchase_order`, `po_items`.
+*   **Event yang Dipublish:**
     *   `procurement.pr.created`
-    *   `procurement.po.issued` (Triggers Budget Lock)
+    *   `procurement.po.issued` (Memicu Penguncian Budget)
 
 ### 2.3 Finance Service (`/payment-service` / `/finance-service`)
-*   **Responsibility:** Budget Control, Invoice Matching (3-Way), Payments.
-*   **Key Tables:** `budget_allocation`, `gl_accounts`, `invoices`, `payments`.
-*   **Events Consumed:** `procurement.po.issued`
-*   **Events Published:** `finance.budget.locked`, `finance.payment.processed`.
+*   **Tanggung Jawab:** Kontrol Budget, Pencocokan Invoice (3-Way), Pembayaran.
+*   **Tabel Utama:** `budget_allocation`, `gl_accounts`, `invoices`, `payments`.
+*   **Event yang Dikonsumsi:** `procurement.po.issued`
+*   **Event yang Dipublish:** `finance.budget.locked`, `finance.payment.processed`.
 
 ### 2.4 Vendor Service (`/vendor-service`)
-*   **Responsibility:** Vendor Onboarding, Catalog Management, Performance Scoring.
-*   **Key Tables:** `vendors`, `catalogs`, `scorecards`.
+*   **Tanggung Jawab:** Onboarding Vendor, Manajemen Katalog, Penilaian Kinerja.
+*   **Tabel Utama:** `vendors`, `catalogs`, `scorecards`.
 
 ### 2.5 Inventory Service (`/inventory-service`)
-*   **Responsibility:** Goods Receipt (GRN), Stock Management.
-*   **Key Tables:** `stock`, `warehouse`, `movements`.
-*   **Events Published:**
+*   **Tanggung Jawab:** Penerimaan Barang (GRN), Manajemen Stok.
+*   **Tabel Utama:** `stock`, `warehouse`, `movements`.
+*   **Event yang Dipublish:**
     *   `inventory.stock.updated`
     *   `inventory.stock.reserved`
 
 ### 2.6 Notification Service (`/notification-service`)
-*   **Responsibility:** Sending Email/SMS/Push based on system events.
-*   **Events Consumed:** `*.*` (Listens to all relevant domain events to trigger alerts).
+*   **Tanggung Jawab:** Mengirim Email/SMS/Push berdasarkan event sistem.
+*   **Event yang Dikonsumsi:** `*.*` (Mendengarkan semua event domain yang relevan untuk memicu alert).
 
 ---
 
-## 3. Event-Driven Workflows
+## 3. Alur Kerja Event-Driven
 
-### 3.1 Scenario: PO Creation & Budget Deduction
-This flow demonstrates how we avoid distributed transactions (2PC) by using Eventual Consistency.
+### 3.1 Skenario: Pembuatan PO & Pemotongan Budget
+Alur ini mendemonstrasikan bagaimana kita menghindari distributed transactions (2PC) dengan menggunakan Eventual Consistency.
 
-**Workflow:**
-1.  **Operator** creates a PO.
-2.  **Procurement Service** saves PO as `PENDING_BUDGET`.
-3.  **Procurement Service** publishes `PO_CREATED` event.
-4.  **Finance Service** listens to `PO_CREATED`:
-    *   Checks Budget availability.
-    *   If OK: Locks amount, Publishes `BUDGET_LOCKED`.
-    *   If Fail: Publishes `BUDGET_FAILED`.
-5.  **Procurement Service** listens to response:
-    *   If `BUDGET_LOCKED`: Updates PO to `ISSUED`.
-    *   If `BUDGET_FAILED`: Updates PO to `REJECTED`.
+**Alur Kerja:**
+1.  **Operator** membuat PO.
+2.  **Procurement Service** menyimpan PO dengan status `PENDING_BUDGET`.
+3.  **Procurement Service** mempublish event `PO_CREATED`.
+4.  **Finance Service** mendengarkan `PO_CREATED`:
+    *   Memeriksa ketersediaan Budget.
+    *   Jika OK: Mengunci jumlah, Mempublish `BUDGET_LOCKED`.
+    *   Jika Gagal: Mempublish `BUDGET_FAILED`.
+5.  **Procurement Service** mendengarkan respons:
+    *   Jika `BUDGET_LOCKED`: Update PO ke `ISSUED`.
+    *   Jika `BUDGET_FAILED`: Update PO ke `REJECTED`.
 
-### 3.2 Sequence Diagram
+### 3.2 Diagram Sequence
 
 ```mermaid
 sequenceDiagram
-    participant User
+    participant Pengguna
     participant Proc Service
     participant Kafka
     participant Finance Service
     participant Notify Service
 
-    User->>Proc Service: POST /purchase-orders
-    Proc Service->>Proc Service: Save PO (Status: PENDING)
+    Pengguna->>Proc Service: POST /purchase-orders
+    Proc Service->>Proc Service: Simpan PO (Status: PENDING)
     Proc Service->>Kafka: Publish "procurement.po.created"
-    Pro Service-->>User: 202 Accepted
+    Proc Service-->>Pengguna: 202 Accepted
 
     Kafka->>Finance Service: Consume "procurement.po.created"
     activate Finance Service
-    Finance Service->>Finance Service: Check & Lock Budget
+    Finance Service->>Finance Service: Cek & Kunci Budget
     alt Budget OK
         Finance Service->>Kafka: Publish "finance.budget.locked"
-    else Budget Exceeded
+    else Budget Melebihi
         Finance Service->>Kafka: Publish "finance.budget.rejected"
     end
     deactivate Finance Service
 
     Kafka->>Proc Service: Consume Budget Event
-    Proc Service->>Proc Service: Update PO Status (ISSUED/REJECTED)
+    Proc Service->>Proc Service: Update Status PO (ISSUED/REJECTED)
 
     Kafka->>Notify Service: Consume "procurement.po.created"
-    Notify Service->>User: Send Email "PO Created"
+    Notify Service->>Pengguna: Kirim Email "PO Dibuat"
 ```
 
-### 3.3 Kafka Topic Taxonomy
-| Topic Name | Producer | Consumer | Payload Example |
+### 3.3 Taksonomi Kafka Topic
+| Nama Topic | Producer | Consumer | Contoh Payload |
 |:---|:---|:---|:---|
 | `procurement.pr.created` | Procurement | Workflow | `{prId: "123", amount: 5000}` |
 | `procurement.po.issued` | Procurement | Finance, Vendor | `{poId: "999", vendorId: "V1"}` |
@@ -150,33 +150,32 @@ sequenceDiagram
 
 ---
 
-## 4. Data Consistency & Reliability
+## 4. Konsistensi Data & Reliabilitas
 
-### 4.1 Saga Pattern
-We typically use **Choreography-based Sagas** (as shown above) for standard flows. Services react to events autonomously.
-*   **Compensation:** If `BUDGET_LOCKED` succeeds but `PO_UPDATE` fails, a compensation event `UNLOCK_BUDGET` is triggered manually or via a reconciliation job.
+### 4.1 Pola Saga
+Kami biasanya menggunakan **Choreography-based Sagas** (seperti ditunjukkan di atas) untuk alur standar. Service bereaksi terhadap event secara otonom.
+*   **Kompensasi:** Jika `BUDGET_LOCKED` berhasil tetapi `PO_UPDATE` gagal, event kompensasi `UNLOCK_BUDGET` dipicu secara manual atau melalui job rekonsiliasi.
 
-### 4.2 Handling Failures (Resilience)
-*   **Dead Letter Queues (DLQ):** Messages that fail processing 3 times (e.g., DB down) are moved to a DLQ topic (`procurement.po.created.dlq`) for manual inspection.
-*   **Idempotency:** All event consumers are idempotent. Processing event ID `PO-123` twice will result in the same state (no double deduction).
+### 4.2 Penanganan Kegagalan (Resiliensi)
+*   **Dead Letter Queues (DLQ):** Pesan yang gagal diproses 3 kali (contoh: DB down) dipindahkan ke topic DLQ (`procurement.po.created.dlq`) untuk inspeksi manual.
+*   **Idempotency:** Semua event consumer bersifat idempotent. Memproses event ID `PO-123` dua kali akan menghasilkan state yang sama (tidak ada pemotongan ganda).
 
-### 4.3 Database Transactions
-*   **Local ACID:** Within a single microservice, we use standard PostgreSQL transactions (`@Transactional`).
-*   **Global Consistency:** Achieved eventually via Kafka.
+### 4.3 Transaksi Database
+*   **ACID Lokal:** Dalam satu microservice, kami menggunakan transaksi PostgreSQL standar (`@Transactional`).
+*   **Konsistensi Global:** Dicapai secara eventual melalui Kafka.
 
 ---
 
-## 5. Scalability & Infra Strategies
+## 5. Strategi Skalabilitas & Infrastruktur
 
 ### 5.1 Horizontal Scaling
-*   **Stateless Services:** API Gateway, Auth, Procurement are stateless and scale horizontally (ReplicaSet = 3+).
-*   **Partitioning:** Kafka topics are partitioned (e.g., 3 partitions) to allow parallel consumption by multiple Service Instances within the same Consumer Group.
+*   **Stateless Services:** API Gateway, Auth, Procurement bersifat stateless dan dapat di-scale horizontal (ReplicaSet = 3+).
+*   **Partitioning:** Topic Kafka dipartisi (contoh: 3 partisi) untuk memungkinkan konsumsi paralel oleh beberapa instance Service dalam Consumer Group yang sama.
 
-### 5.2 Caching Strategy
-*   **Master Data:** Standard dropdowns (Currencies, Payment Terms) are cached in Redis (`TTL = 24h`).
-*   **Session Data:** User Tokens/Sessions are stored in Redis (`TTL = 30m`).
+### 5.2 Strategi Caching
+*   **Master Data:** Dropdown standar (Mata Uang, Payment Terms) di-cache di Redis (`TTL = 24h`).
+*   **Data Sesi:** Token/Session Pengguna disimpan di Redis (`TTL = 30m`).
 
 ### 5.3 Circuit Breaker
-*   Implemented using **Resilience4j**.
-*   If `Vendor Service` is down, `Procurement Service` will return a fallback response (e.g., "Vendor Info Unavailable - Try Later") instead of hanging.
-
+*   Diimplementasikan menggunakan **Resilience4j**.
+*   Jika `Vendor Service` down, `Procurement Service` akan mengembalikan respons fallback (contoh: "Info Vendor Tidak Tersedia - Coba Lagi Nanti") alih-alih hang.

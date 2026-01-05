@@ -1,615 +1,652 @@
-# Detailed Use Case Specifications - Batch 1
-**Actor:** Admin (System & Security)
-**Focus:** User Access, Security, and Session Management
+# Spesifikasi Use Case Detail - Admin
+**Aktor:** Admin (Sistem & Keamanan)
+**Fokus:** Akses User, Keamanan, Manajemen Sesi, Audit, dan Master Data
 
 ---
 
-### 1. UC-ADM-001 Create Internal User
+## BAGIAN A: Akses User & Keamanan
 
-1.  **Use Case ID & Name:** UC-ADM-001 Create Internal User
-2.  **Actor:** Admin
-3.  **Description:** Create a new internal user account (e.g., Procurement Staff, Manager) with initial login credentials and role assignment.
-4.  **Pre-conditions:**
-    *   Admin is logged in with `USER_MANAGEMENT` privileges.
-    *   Employee data exists in HR system (optional check).
-5.  **Post-conditions:**
-    *   User account created with status `PENDING_ACTIVATION`.
-    *   Activation email sent to the user.
-    *   Audit log entry created.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **User Management > Add User**.
-    2.  Admin inputs user details: **Full Name**, **Email** (Corporate), **Department**, **Job Title**.
-    3.  Admin assigns initial **Role** (e.g., `OPERATOR`).
-    4.  Admin clicks "Create User".
-    5.  System validates email uniqueness and domain whitelist.
-    6.  System generates a temporary, one-time password (or activation link).
-    7.  System saves user record with status `PENDING_ACTIVATION`.
-    8.  System sends an encrypted email notification to the user with activation instructions.
-    9.  System records action in **Audit Trail**: "Admin X created User Y".
-7.  **Alternative Flows:**
-    *   *Bulk Import:* Admin uploads a CSV file. System parses and creates multiple users iteratively.
-8.  **Error/Exception Flows:**
-    *   *Email Exists:* System displays error "Email address already registered."
-    *   *Invalid Domain:* System restricts email to allowed corporate domains (e.g., `@bank-xyz.com`).
+### 1. UC-ADM-001 Buat User Internal
 
----
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-001 Buat User Internal |
+| **Aktor** | Admin |
+| **Deskripsi** | Membuat akun user internal baru (contoh: Staff Pengadaan, Manager) dengan kredensial login awal dan assignment role. |
+| **Pre-kondisi** | - Admin login dengan privilege `USER_MANAGEMENT`<br/>- Data karyawan ada di sistem HR (opsional) |
+| **Post-kondisi** | - Akun user dibuat dengan status `PENDING_ACTIVATION`<br/>- Email aktivasi dikirim<br/>- Entri audit log dibuat |
 
-### 2. UC-ADM-002 Update User Role & Permissions
+**Alur Utama (Happy Path):**
+1.  Admin navigasi ke **Manajemen User > Tambah User**.
+2.  Admin input detail: **Nama Lengkap**, **Email** (Korporat), **Departemen**, **Jabatan**.
+3.  Admin assign **Role** awal (contoh: `OPERATOR`).
+4.  Admin klik "Buat User".
+5.  Sistem validasi keunikan email dan domain whitelist.
+6.  Sistem generate password sementara atau link aktivasi.
+7.  Sistem simpan record user dengan status `PENDING_ACTIVATION`.
+8.  Sistem kirim email terenkripsi dengan instruksi aktivasi.
+9.  Sistem catat di **Audit Trail**: "Admin X membuat User Y".
 
-1.  **Use Case ID & Name:** UC-ADM-002 Update User Role & Permissions
-2.  **Actor:** Admin
-3.  **Description:** Modify an existing user's access rights, promoting or demoting them, or changing their operational scope.
-4.  **Pre-conditions:**
-    *   Target user exists and is Active.
-    *   Admin has `SUPER_ADMIN` or `ROLE_MANAGER` privilege.
-5.  **Post-conditions:**
-    *   User permissions updated immediately.
-    *   Active sessions for the user are invalidated (Force Re-login).
-6.  **Basic Flow (Happy Path):**
-    1.  Admin searches for user "John Doe".
-    2.  Admin views current profile: Role `OPERATOR`.
-    3.  Admin clicks "Edit Role".
-    4.  Admin changes role to `SUPERVISOR`.
-    5.  System displays warning: "This change will grant Approval Authority. Confirm?".
-    6.  Admin confirms.
-    7.  System updates the database.
-    8.  System triggers **Force Logout** (UC-ADM-010) for that user's active tokens to apply new scopes.
-    9.  System logs event with high criticality.
-7.  **Alternative Flows:**
-    *   *Temporary Elevation:* Admin sets an "Expiry Date" for the new role (e.g., acting manager for 1 week).
-8.  **Error/Exception Flows:**
-    *   *SoD Violation:* Admin tries to assign both `BUYER` and `PAYMENT_OFFICER` roles. System blocks with "Segregation of Duties Violation".
+**Alur Alternatif:**
+*   *Bulk Import:* Admin upload file CSV. Sistem parsing dan buat multiple user.
+
+**Alur Exception:**
+*   *Email Sudah Ada:* Sistem tampilkan error "Alamat email sudah terdaftar."
+*   *Domain Tidak Valid:* Sistem batasi email hanya domain korporat (contoh: `@bank-xyz.com`).
 
 ---
 
-### 3. UC-ADM-003 Deactivate/Soft Delete User
+### 2. UC-ADM-002 Update Role & Permission User
 
-1.  **Use Case ID & Name:** UC-ADM-003 Deactivate/Soft Delete User
-2.  **Actor:** Admin
-3.  **Description:** Revoke system access for a user who has resigned or transferred, maintaining data integrity (no hard delete).
-4.  **Pre-conditions:**
-    *   User exists.
-5.  **Post-conditions:**
-    *   User status = `INACTIVE`.
-    *   User cannot log in.
-    *   Historical data (PRs/POs created by user) remains accessible.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin selects user to offboard.
-    2.  Admin clicks "Deactivate Account".
-    3.  Admin selects **Reason**: "Resignation" or "Transfer".
-    4.  System checks for **Pending Tasks** assigned to this user.
-    5.  Admin reassigns pending tasks to another user (or Delegate).
-    6.  Admin confirms deactivation.
-    7.  System updates `is_active` flag to `false` (Soft Delete).
-    8.  System terminates all active sessions.
-7.  **Alternative Flows:**
-    *   *Scheduled Deactivation:* Admin sets a future date for deactivation (user's last day).
-8.  **Error/Exception Flows:**
-    *   *Pending Approvals:* System prevents deactivation if critical approvals are stuck in their queue without reassignment.
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-002 Update Role & Permission User |
+| **Aktor** | Admin |
+| **Deskripsi** | Memodifikasi hak akses user, promosi atau demosi, atau mengubah scope operasional. |
+| **Pre-kondisi** | - User target ada dan Aktif<br/>- Admin punya privilege `SUPER_ADMIN` atau `ROLE_MANAGER` |
+| **Post-kondisi** | - Permission user diupdate langsung<br/>- Sesi aktif user diinvalidasi (Force Re-login) |
 
----
+**Alur Utama:**
+1.  Admin cari user "John Doe".
+2.  Admin lihat profil: Role saat ini `OPERATOR`.
+3.  Admin klik "Edit Role".
+4.  Admin ubah role ke `SUPERVISOR`.
+5.  Sistem tampilkan warning: "Perubahan ini akan memberikan Otoritas Approval. Konfirmasi?".
+6.  Admin konfirmasi.
+7.  Sistem update database.
+8.  Sistem trigger **Force Logout** (UC-ADM-010) untuk invalidasi token.
+9.  Sistem log event dengan criticality tinggi.
 
-### 4. UC-ADM-004 Reset User Password (Force Change)
+**Alur Alternatif:**
+*   *Temporary Elevation:* Admin set "Tanggal Expired" untuk role baru (manager sementara 1 minggu).
 
-1.  **Use Case ID & Name:** UC-ADM-004 Reset User Password (Force Change)
-2.  **Actor:** Admin
-3.  **Description:** Administratively reset a user's password in case of lockout or security breach, enforcing a change on next login.
-4.  **Pre-conditions:**
-    *   User request verified via offline channel (e.g., manager approval) to prevent social engineering.
-5.  **Post-conditions:**
-    *   User password hash updated to temporary value.
-    *   User status `MUST_CHANGE_PASSWORD`.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin selects user.
-    2.  Admin clicks "Reset Password".
-    3.  System generates a strong random temporary password.
-    4.  Admin communicates this password to user via secure channel (SMS/Email).
-    5.  System sets `require_password_change` flag to `true`.
-    6.  System records "Manual Password Reset" in Audit Log.
-7.  **Alternative Flows:**
-    *   *Email Link:* Admin sends a "Password Reset Link" instead of a temporary password.
-8.  **Error/Exception Flows:**
-    *   *User Locked:* If user is locked due to failed attempts, this action also performs **Unlock** (UC-ADM-008).
+**Alur Exception:**
+*   *Pelanggaran SoD:* Admin coba assign role `BUYER` dan `PAYMENT_OFFICER`. Sistem blok dengan "Pelanggaran Segregation of Duties".
 
 ---
 
-### 5. UC-ADM-005 Configure 2FA/MFA Settings
+### 3. UC-ADM-003 Nonaktifkan/Soft Delete User
 
-1.  **Use Case ID & Name:** UC-ADM-005 Configure 2FA/MFA Settings
-2.  **Actor:** Admin
-3.  **Description:** Enforce Multi-Factor Authentication policies globally or per role (e.g., MANDATORY for Finance/Approvers).
-4.  **Pre-conditions:**
-    *   System integrated with MFA Provider (Google Authenticator/SMS Gateway).
-5.  **Post-conditions:**
-    *   Security Policy updated.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **Security Settings > Authentication**.
-    2.  Admin enables "Enforce MFA".
-    3.  Admin selects Scope:
-        *   "All Users" OR
-        *   "Specific Roles" (Finance, Supervisor, Admin).
-    4.  Admin selects Allowed Methods: "TOTP App" (Preferred), "Email OTP".
-    5.  Admin clicks "Save Policy".
-    6.  System prompts Admin to verify their own MFA to confirm change.
-    7.  System enforces MFA on next login for affected users.
-7.  **Alternative Flows:**
-    *   *Grace Period:* Admin sets a 3-day grace period for users to set up MFA.
-8.  **Error/Exception Flows:**
-    *   *Provider Down:* If SMS gateway is unreachable during config test, System returns error.
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-003 Nonaktifkan/Soft Delete User |
+| **Aktor** | Admin |
+| **Deskripsi** | Mencabut akses sistem user yang resign atau mutasi, menjaga integritas data (tanpa hard delete). |
+| **Pre-kondisi** | User ada |
+| **Post-kondisi** | - Status user = `INACTIVE`<br/>- User tidak bisa login<br/>- Data historis (PR/PO yang dibuat user) tetap accessible |
 
----
+**Alur Utama:**
+1.  Admin pilih user untuk offboard.
+2.  Admin klik "Nonaktifkan Akun".
+3.  Admin pilih **Alasan**: "Resign" atau "Mutasi".
+4.  Sistem cek **Tugas Pending** yang di-assign ke user ini.
+5.  Admin reassign tugas pending ke user lain.
+6.  Admin konfirmasi nonaktifkan.
+7.  Sistem update flag `is_active` ke `false` (Soft Delete).
+8.  Sistem terminate semua sesi aktif.
 
-### 6. UC-ADM-006 Whitelist IP Addresses
+**Alur Alternatif:**
+*   *Scheduled Deactivation:* Admin set tanggal nonaktif di masa depan (hari terakhir kerja).
 
-1.  **Use Case ID & Name:** UC-ADM-006 Whitelist IP Addresses
-2.  **Actor:** Admin
-3.  **Description:** Restrict access to the Admin/Finance portal to specific trusted networks (e.g., Head Office VPN).
-4.  **Pre-conditions:**
-    *   Admin access required.
-5.  **Post-conditions:**
-    *   Firewall/Middleware rules updated.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin goes to **Security > Network Access**.
-    2.  Admin clicks "Add Trusted IP Range".
-    3.  Admin enters CIDR block (e.g., `192.168.10.0/24`) and Description ("HQ Finance Network").
-    4.  Admin creates a **Rule**: "Deny Login if Role = FINANCE and IP not in Trusted Range".
-    5.  Admin saves.
-    6.  System validates CIDR format.
-    7.  System activates IP restriction filter immediately.
-7.  **Alternative Flows:**
-    *   *VPN Exception:* Admin whitelists the VPN Gateway IP.
-8.  **Error/Exception Flows:**
-    *   *Self-Lockout Prevention:* System blocks Admin from banning their CURRENT IP address.
+**Alur Exception:**
+*   *Approval Pending:* Sistem cegah nonaktifkan jika ada approval kritis yang stuck di queue tanpa reassignment.
 
 ---
 
-### 7. UC-ADM-007 Manage Session Timeouts
+### 4. UC-ADM-004 Reset Password User
 
-1.  **Use Case ID & Name:** UC-ADM-007 Manage Session Timeouts
-2.  **Actor:** Admin
-3.  **Description:** Configure global session inactivity timers to minimize risk of unattended workstations.
-4.  **Pre-conditions:**
-    *   None.
-5.  **Post-conditions:**
-    *   Application configuration updated in DB/Cache.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin opens **System Parameters**.
-    2.  Admin locates `SESSION_TIMEOUT_MINUTES`.
-    3.  Admin changes value from `30` to `15` (Compliance Requirement).
-    4.  Admin locates `REMEMBER_ME_ENABLED` and sets to `FALSE` (Banking Standard).
-    5.  Admin saves configuration.
-    6.  System broadcasts configuration reload to all service instances.
-7.  **Alternative Flows:**
-    *   NONE.
-8.  **Error/Exception Flows:**
-    *   *Invalid Value:* System rejects negative numbers or excessive duration (e.g., > 12 hours).
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-004 Reset Password User (Force Change) |
+| **Aktor** | Admin |
+| **Deskripsi** | Reset password user secara administratif karena lockout atau security breach, memaksa ganti di login berikutnya. |
+| **Pre-kondisi** | Request user diverifikasi via channel offline (contoh: approval manager) untuk cegah social engineering |
+| **Post-kondisi** | - Password hash user diupdate ke nilai sementara<br/>- Status user `MUST_CHANGE_PASSWORD` |
 
----
+**Alur Utama:**
+1.  Admin pilih user.
+2.  Admin klik "Reset Password".
+3.  Sistem generate password sementara yang kuat.
+4.  Admin komunikasikan password via channel aman (SMS/Email).
+5.  Sistem set flag `require_password_change` ke `true`.
+6.  Sistem catat "Manual Password Reset" di Audit Log.
 
-### 8. UC-ADM-008 Unlock User Account
+**Alur Alternatif:**
+*   *Email Link:* Admin kirim "Password Reset Link" sebagai ganti password sementara.
 
-1.  **Use Case ID & Name:** UC-ADM-008 Unlock User Account
-2.  **Actor:** Admin
-3.  **Description:** Manually unlock a user account that was frozen due to multiple failed login attempts (Brute Force Protection).
-4.  **Pre-conditions:**
-    *   User status is `LOCKED`.
-    *   User identity verified.
-5.  **Post-conditions:**
-    *   User status `ACTIVE`.
-    *   Failed login counter reset to 0.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin receives support ticket "Account Locked".
-    2.  Admin locates user in User Management.
-    3.  System shows status: **LOCKED (5 Failed Attempts)**.
-    4.  Admin reviews Login Logs to rule out actual attack (Check IP usage).
-    5.  Admin clicks "Unlock Account".
-    6.  System resets failure counter.
-    7.  System notifies user via email: "Your account has been unlocked by Admin."
-7.  **Alternative Flows:**
-    *   NONE.
-8.  **Error/Exception Flows:**
-    *   *Suspicious Activity:* If logs show distributed IP attack, Admin keeps account locked and flags for Security (UC-ADM-015).
+**Alur Exception:**
+*   *User Terkunci:* Jika user terkunci karena percobaan gagal, aksi ini juga melakukan **Unlock** (UC-ADM-008).
 
 ---
 
-### 9. UC-ADM-009 View Active Sessions
+### 5. UC-ADM-005 Konfigurasi 2FA/MFA
 
-1.  **Use Case ID & Name:** UC-ADM-009 View Active Sessions
-2.  **Actor:** Admin
-3.  **Description:** Monitor who is currently logged in, their IP, and last activity time.
-4.  **Pre-conditions:**
-    *   Redis/Session store active.
-5.  **Post-conditions:**
-    *   Admin views report.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **Security > Active Sessions**.
-    2.  System queries the Session Store (e.g., Redis).
-    3.  System displays table: **User**, **Role**, **Login Time**, **Last Activity**, **IP Address**, **Device/Browser**.
-    4.  Admin filters by "Role: Finance".
-    5.  Admin observes concurrent sessions.
-7.  **Alternative Flows:**
-    *   NONE.
-8.  **Error/Exception Flows:**
-    *   *Store Unavailable:* System displays "Session Data Temporarily Unavailable".
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-005 Konfigurasi 2FA/MFA Settings |
+| **Aktor** | Admin |
+| **Deskripsi** | Mengaktifkan kebijakan Multi-Factor Authentication secara global atau per role (WAJIB untuk Finance/Approver). |
+| **Pre-kondisi** | Sistem terintegrasi dengan MFA Provider (Google Authenticator/SMS Gateway) |
+| **Post-kondisi** | Security Policy diupdate |
 
----
+**Alur Utama:**
+1.  Admin navigasi ke **Pengaturan Keamanan > Autentikasi**.
+2.  Admin aktifkan "Enforce MFA".
+3.  Admin pilih Scope:
+    *   "Semua User" ATAU
+    *   "Role Tertentu" (Finance, Supervisor, Admin).
+4.  Admin pilih Metode yang Diizinkan: "TOTP App" (Primer), "Email OTP".
+5.  Admin klik "Simpan Policy".
+6.  Sistem minta Admin verifikasi MFA mereka sendiri.
+7.  Sistem enforce MFA pada login berikutnya untuk affected users.
 
-### 10. UC-ADM-010 Force Logout User
+**Alur Alternatif:**
+*   *Grace Period:* Admin set grace period 3 hari untuk user setup MFA.
 
-1.  **Use Case ID & Name:** UC-ADM-010 Force Logout User
-2.  **Actor:** Admin
-3.  **Description:** Immediately terminate a user's session (Kill Switch) due to suspicious behavior or HR action.
-4.  **Pre-conditions:**
-    *   User has an active session.
-5.  **Post-conditions:**
-    *   Session token blacklisted/deleted.
-    *   User redirected to Login page on next request.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin views Active Sessions (UC-ADM-009).
-    2.  Admin identifies a suspicious session (e.g., login from unusual country).
-    3.  Admin clicks "Kill Session" / "Force Logout".
-    4.  System revokes the Access Token and Refresh Token.
-    5.  System publishes "Logout Event" to message bus (Websocket) to disconnect frontend client immediately.
-    6.  System logs: "Admin forcibly logged out User X".
-7.  **Alternative Flows:**
-    *   *Logout All:* Admin selects "Logout All Users" (Emergency Maintenance mode).
-8.  **Error/Exception Flows:**
-    *   *Token Expired:* If session already expired, system reports "Session no longer active".
-# Detailed Use Case Specifications - Batch 2
-**Actor:** Admin (Audit & Master Data)
-**Focus:** Audit Trails, Compliance Reporting, and Master Data Configuration
+**Alur Exception:**
+*   *Provider Down:* Jika SMS gateway unreachable saat tes, Sistem return error.
 
 ---
 
-### 11. UC-ADM-011 View Global Audit Trail
+### 6. UC-ADM-006 Whitelist IP Address
 
-1.  **Use Case ID & Name:** UC-ADM-011 View Global Audit Trail
-2.  **Actor:** Admin (Auditor)
-3.  **Description:** View immutable logs of all system activities for forensic analysis and compliance verification.
-4.  **Pre-conditions:**
-    *   User has `AUDITOR` role.
-    *   MFA verification completed for session.
-5.  **Post-conditions:**
-    *   Log access event is recorded.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **Compliance > Audit Trail**.
-    2.  Admin applies filters: **Actor** (e.g., "Supervisor A"), **Entity** ("Purchase Order"), **Date Range**, **Action** ("Approve").
-    3.  System queries the centralized log repository (Elasticsearch/Database).
-    4.  System displays results table: **Timestamp**, **User**, **IP**, **Action**, **Resource ID**, **Outcome**.
-    5.  Admin clicks "View Details" on a specific record.
-    6.  System displays JSON diff showing `previous_state` vs `new_state`.
-    7.  Admin inspects the "Rationale" field (if applicable).
-7.  **Alternative Flows:**
-    *   *Search by Keyword:* Admin inputs specific "PO-2026-001" to find all related events.
-8.  **Error/Exception Flows:**
-    *   *No Results:* System displays "No records found matching criteria."
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-006 Whitelist IP Address |
+| **Aktor** | Admin |
+| **Deskripsi** | Membatasi akses portal Admin/Finance hanya ke jaringan trusted (contoh: VPN Kantor Pusat). |
+| **Pre-kondisi** | Akses Admin diperlukan |
+| **Post-kondisi** | Aturan Firewall/Middleware diupdate |
 
----
+**Alur Utama:**
+1.  Admin buka **Keamanan > Akses Jaringan**.
+2.  Admin klik "Tambah IP Range Trusted".
+3.  Admin masukkan CIDR block (contoh: `192.168.10.0/24`) dan Deskripsi ("Network Finance HQ").
+4.  Admin buat **Rule**: "Tolak Login jika Role = FINANCE dan IP tidak di Trusted Range".
+5.  Admin simpan.
+6.  Sistem validasi format CIDR.
+7.  Sistem aktifkan filter IP restriction langsung.
 
-### 12. UC-ADM-012 Export Audit Logs (Encrypted PDF)
+**Alur Alternatif:**
+*   *Exception VPN:* Admin whitelist IP VPN Gateway.
 
-1.  **Use Case ID & Name:** UC-ADM-012 Export Audit Logs (Encrypted PDF)
-2.  **Actor:** Admin (Auditor)
-3.  **Description:** Generate a secure, password-protected PDF report of audit logs for external auditors (KPMG/PwC).
-4.  **Pre-conditions:**
-    *   Audit record set selected (from UC-ADM-011).
-5.  **Post-conditions:**
-    *   Encrypted file generated.
-    *   Download tracked.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin selects filtered records.
-    2.  Admin clicks "Export Report".
-    3.  Admin selects format: **PDF (Official)** or **CSV (Raw Data)**.
-    4.  System requests **Encryption Password** (to protect data in transit).
-    5.  Admin enters and confirms password.
-    6.  System generates files, applying watermarks ("CONFIDENTIAL - BANK PROPERTY").
-    7.  System downloads the file to Admin's local machine.
-    8.  System logs: "Audit Report exported by Admin X".
-7.  **Alternative Flows:**
-    *   NONE.
-8.  **Error/Exception Flows:**
-    *   *Volume Too Large:* If rows > 100,000, System prompts to "Schedule Email Delivery" instead of direct download.
+**Alur Exception:**
+*   *Pencegahan Self-Lockout:* Sistem blok Admin dari banning IP SAAT INI yang mereka gunakan.
 
 ---
 
-### 13. UC-ADM-013 Configure Retention Policy
+### 7. UC-ADM-007 Kelola Timeout Sesi
 
-1.  **Use Case ID & Name:** UC-ADM-013 Configure Retention Policy
-2.  **Actor:** Admin
-3.  **Description:** Define how long data (Audit Logs, Transactions) is kept before archiving or deletion, per Regulatory requirements (e.g., 10 Years).
-4.  **Pre-conditions:**
-    *   Super Admin privileges.
-5.  **Post-conditions:**
-    *   System scheduled jobs updated.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **System Config > Data Retention**.
-    2.  Admin selects Data Type: **Transaction Logs**.
-    3.  Admin sets "Live Retention": **2 Years**.
-    4.  Admin sets "Archive Retention": **8 Years**.
-    5.  Admin selects "Deletion Policy": **Hard Delete after 10 Years**.
-    6.  Admin clicks "Save Policy".
-    7.  System confirms and alerts: "Changes apply to future archival jobs."
-7.  **Alternative Flows:**
-    *   *Legal Hold:* Admin enables "Legal Hold" on specific data types to prevent ANY deletion indefinitely.
-8.  **Error/Exception Flows:**
-    *   *Compliance Warning:* Admin tries to set retention < 5 Years. System warns "Violation of Banking Regulation OJK No. X".
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-007 Kelola Timeout Sesi |
+| **Aktor** | Admin |
+| **Deskripsi** | Konfigurasi timer inactivity sesi global untuk meminimalkan risiko workstation tanpa pengawasan. |
+| **Pre-kondisi** | Tidak ada |
+| **Post-kondisi** | Konfigurasi aplikasi diupdate di DB/Cache |
 
----
+**Alur Utama:**
+1.  Admin buka **Parameter Sistem**.
+2.  Admin temukan `SESSION_TIMEOUT_MINUTES`.
+3.  Admin ubah nilai dari `30` ke `15` (Compliance Requirement).
+4.  Admin temukan `REMEMBER_ME_ENABLED` dan set ke `FALSE` (Standar Perbankan).
+5.  Admin simpan konfigurasi.
+6.  Sistem broadcast configuration reload ke semua service instance.
 
-### 14. UC-ADM-014 Generate Access Control Report
-
-1.  **Use Case ID & Name:** UC-ADM-014 Generate Access Control Report
-2.  **Actor:** Admin
-3.  **Description:** Generate a snapshot of who has access to what, for periodic Entitlement Reviews.
-4.  **Pre-conditions:**
-    *   None.
-5.  **Post-conditions:**
-    *   Report generated.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin goes to **User Management > Reports**.
-    2.  Admin selects "User Entitlement Matrix".
-    3.  Admin filters by Department: "Treasury".
-    4.  System generates a matrix showing Users vs Roles vs Permissions.
-    5.  System highlights **High Risk** permissions (e.g., "Approve Payment").
-    6.  Admin exports or prints for quarterly sign-off.
-7.  **Alternative Flows:**
-    *   NONE.
-8.  **Error/Exception Flows:**
-    *   *Timeout:* Complex query times out. System suggests running as background job.
+**Alur Exception:**
+*   *Nilai Tidak Valid:* Sistem reject angka negatif atau durasi berlebihan (contoh: > 12 jam).
 
 ---
 
-### 15. UC-ADM-015 Flag Suspicious Activity
+### 8. UC-ADM-008 Unlock Akun User
 
-1.  **Use Case ID & Name:** UC-ADM-015 Flag Suspicious Activity
-2.  **Actor:** Admin (Security)
-3.  **Description:** Manually flag specific transactions or user behaviors as "Suspicious" for investigation.
-4.  **Pre-conditions:**
-    *   Observation of anomaly.
-5.  **Post-conditions:**
-    *   Entity flagged `UNDER_INVESTIGATION`.
-    *   Process frozen (optional).
-6.  **Basic Flow (Happy Path):**
-    1.  Admin views Transaction/Log.
-    2.  Admin clicks "Flag for Investigation".
-    3.  Admin selects Type: **Fraud Attempt** / **SoD Bypassed**.
-    4.  Admin enters "Case Notes".
-    5.  System updates record status to `FLAGGED`.
-    6.  System may freeze related funds/process (based on config).
-    7.  System sends alert to "Fraud Team".
-7.  **Alternative Flows:**
-    *   *Unflag:* Admin reviews and marks as "False Positive".
-8.  **Error/Exception Flows:**
-    *   NONE.
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-008 Unlock Akun User |
+| **Aktor** | Admin |
+| **Deskripsi** | Membuka kunci akun user secara manual yang dibekukan karena multiple failed login (Brute Force Protection). |
+| **Pre-kondisi** | - Status user adalah `LOCKED`<br/>- Identitas user terverifikasi |
+| **Post-kondisi** | - Status user `ACTIVE`<br/>- Counter failed login reset ke 0 |
 
----
+**Alur Utama:**
+1.  Admin terima support ticket "Akun Terkunci".
+2.  Admin temukan user di Manajemen User.
+3.  Sistem tampilkan status: **LOCKED (5 Percobaan Gagal)**.
+4.  Admin review Login Log untuk mengesampingkan serangan aktual (Cek penggunaan IP).
+5.  Admin klik "Unlock Akun".
+6.  Sistem reset failure counter.
+7.  Sistem notifikasi user via email: "Akun Anda telah dibuka oleh Admin."
 
-### 16. UC-ADM-016 Manage Departments/Cost Centers
-
-1.  **Use Case ID & Name:** UC-ADM-016 Manage Departments/Cost Centers
-2.  **Actor:** Admin
-3.  **Description:** Setup organizational structure and budget codes for accounting allocation.
-4.  **Pre-conditions:**
-    *   User is Finance/Admin.
-5.  **Post-conditions:**
-    *   Department available for PR creation.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **Master Data > Cost Centers**.
-    2.  Admin clicks "Add New".
-    3.  Admin enters **Code** ("IT-001"), **Name** ("Information Technology"), **Budget Owner** ("Mr. CTO").
-    4.  Admin maps to **GL Segment** (for ERP integration).
-    5.  Admin sets Status `ACTIVE`.
-    6.  System validates Code uniqueness.
-    7.  System saves record.
-7.  **Alternative Flows:**
-    *   *Import:* Admin import cost center hierarchy from ERP (SAP/Oracle).
-8.  **Error/Exception Flows:**
-    *   *Duplicate Code:* System rejects duplicate Cost Center ID.
+**Alur Exception:**
+*   *Aktivitas Mencurigakan:* Jika log menunjukkan serangan distributed IP, Admin biarkan akun terkunci dan flag untuk Security (UC-ADM-015).
 
 ---
 
-### 17. UC-ADM-017 Configure Approval Matrix (SoD)
+### 9. UC-ADM-009 Lihat Sesi Aktif
 
-1.  **Use Case ID & Name:** UC-ADM-017 Configure Approval Matrix (SoD)
-2.  **Actor:** Admin
-3.  **Description:** Define dynamic approval workflows based on amount, department, and document type.
-4.  **Pre-conditions:**
-    *   Cost Centers defined.
-5.  **Post-conditions:**
-    *   Workflow logic updated.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin views **Approval Rules**.
-    2.  Admin creates Rule: "IT PRs > 500M".
-    3.  Admin sets Condition: `Department = IT` AND `Amount > 500,000,000`.
-    4.  Admin sets Approver Sequence:
-        1.  Line Manager.
-        2.  Div Head.
-        3.  Director.
-    5.  Admin enables "Escalation Policy" (Forward if pending > 3 days).
-    6.  System saves rule.
-7.  **Alternative Flows:**
-    *   *Substitute:* Admin assigns a specific person instead of a role (Not recommended, but allowed).
-8.  **Error/Exception Flows:**
-    *   *Gap Config:* System detects amount range not covered (e.g., 100M-500M has no rule).
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-009 Lihat Sesi Aktif |
+| **Aktor** | Admin |
+| **Deskripsi** | Monitor siapa yang sedang login, IP mereka, dan waktu aktivitas terakhir. |
+| **Pre-kondisi** | Redis/Session store aktif |
+| **Post-kondisi** | Admin melihat laporan |
+
+**Alur Utama:**
+1.  Admin navigasi ke **Keamanan > Sesi Aktif**.
+2.  Sistem query Session Store (contoh: Redis).
+3.  Sistem tampilkan tabel: **User**, **Role**, **Waktu Login**, **Aktivitas Terakhir**, **IP Address**, **Device/Browser**.
+4.  Admin filter berdasarkan "Role: Finance".
+5.  Admin observasi concurrent sessions.
+
+**Alur Exception:**
+*   *Store Unavailable:* Sistem tampilkan "Data Sesi Sementara Tidak Tersedia".
 
 ---
 
-### 18. UC-ADM-018 Manage Currency & Exchange Rates
+### 10. UC-ADM-010 Paksa Logout User
 
-1.  **Use Case ID & Name:** UC-ADM-018 Manage Currency & Exchange Rates
-2.  **Actor:** Admin
-3.  **Description:** Maintain list of allowed currencies and daily exchange rates for multi-currency procurement.
-4.  **Pre-conditions:**
-    *   External Rate API configured (optional).
-5.  **Post-conditions:**
-    *   System converts foreign amounts using new rate.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin goes to **Master Data > Currencies**.
-    2.  Admin ensures IDR, USD, SGD are active.
-    3.  Admin clicks "Update Rates".
-    4.  Admin manually enters "USD to IDR = 15,500".
-    5.  Admin sets Effective Date: Today.
-    6.  System saves rate history (for Audit).
-    7.  System recalculates Base Currency equivalents for reports.
-7.  **Alternative Flows:**
-    *   *Auto-Sync:* System pulls rates from Bloomberg/Reuters API daily at 09:00 WIB.
-8.  **Error/Exception Flows:**
-    *   *Deviation:* System warns if entered rate deviates >10% from previous day (Fat Finger check).
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-010 Paksa Logout User |
+| **Aktor** | Admin |
+| **Deskripsi** | Terminate sesi user secara langsung (Kill Switch) karena perilaku mencurigakan atau aksi HR. |
+| **Pre-kondisi** | User memiliki sesi aktif |
+| **Post-kondisi** | - Token sesi di-blacklist/dihapus<br/>- User dialihkan ke halaman Login pada request berikutnya |
 
----
+**Alur Utama:**
+1.  Admin lihat Sesi Aktif (UC-ADM-009).
+2.  Admin identifikasi sesi mencurigakan (contoh: login dari negara tidak biasa).
+3.  Admin klik "Kill Session" / "Paksa Logout".
+4.  Sistem revoke Access Token dan Refresh Token.
+5.  Sistem publish "Logout Event" ke message bus (Websocket) untuk disconnect frontend client langsung.
+6.  Sistem log: "Admin paksa logout User X".
 
-### 19. UC-ADM-019 Manage Tax Codes & Rates (PPN/PPH)
+**Alur Alternatif:**
+*   *Logout Semua:* Admin pilih "Logout Semua User" (Mode Maintenance Darurat).
 
-1.  **Use Case ID & Name:** UC-ADM-019 Manage Tax Codes & Rates (PPN/PPH)
-2.  **Actor:** Admin
-3.  **Description:** Configure applicable tax rates compliant with Indonesian Tax Law (e.g., PPN 11% -> 12%).
-4.  **Pre-conditions:**
-    *   Tax regulation change.
-5.  **Post-conditions:**
-    *   Calculations on new POs reflect selected tax.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **Master Data > Tax Codes**.
-    2.  Admin edits "PPN" code.
-    3.  Admin changes Rate from `11%` to `12%`.
-    4.  Admin enters Description: "UU HPP 2025".
-    5.  Admin checks "Recall Old POs?": NO (Apply only to new).
-    6.  System saves.
-7.  **Alternative Flows:**
-    *   *Create WHT:* Admin creates "PPh 23" for Services (2%).
-8.  **Error/Exception Flows:**
-    *   *Invalid Format:* Rate must be 0-100.
+**Alur Exception:**
+*   *Token Expired:* Jika sesi sudah expired, sistem report "Sesi sudah tidak aktif".
 
 ---
 
-### 20. UC-ADM-020 Manage Units of Measurement (UoM)
+## BAGIAN B: Audit & Kepatuhan
 
-1.  **Use Case ID & Name:** UC-ADM-020 Manage Units of Measurement (UoM)
-2.  **Actor:** Admin
-3.  **Description:** Standardize units (Pcs, Box, Kg, Liter) to ensure consistency in ordering.
-4.  **Pre-conditions:**
-    *   None.
-5.  **Post-conditions:**
-    *   UoM available in dropdowns.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin goes to **Master Data > UoM**.
-    2.  Admin checks existing list.
-    3.  Admin adds "Rim" (for Paper).
-    4.  Admin adds Code: `RIM`.
-    5.  System saves.
-7.  **Alternative Flows:**
-    *   *Conversion:* Admin defines "1 Box = 5 Rim".
-8.  **Error/Exception Flows:**
-    *   *Duplicate:* Code `RIM` already exists.
-### 21. UC-ADM-021 Manage Payment Terms
+### 11. UC-ADM-011 Lihat Audit Trail Global
 
-1.  **Use Case ID & Name:** UC-ADM-021 Manage Payment Terms
-2.  **Actor:** Admin
-3.  **Description:** Define standard payment terms (e.g., Net 30, Net 60, Immediate) to be assigned to Vendors and POs.
-4.  **Pre-conditions:**
-    *   None.
-5.  **Post-conditions:**
-    *   Term available for selection.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **Master Data > Payment Terms**.
-    2.  Admin clicks "Create New".
-    3.  Admin enters Code: `NET45`, Description: "45 Days after Invoice".
-    4.  Admin inputs **Due Days**: `45`.
-    5.  Admin checks "Discount Eligible?": `No`.
-    6.  System saves.
-7.  **Alternative Flows:**
-    *   *Early Payment:* Admin defines "2/10 Net 30" (2% discount if paid in 10 days).
-8.  **Error/Exception Flows:**
-    *   *Conflict:* Admin tries to delete "Net 30" which is used by active POs. System blocks deletion.
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-011 Lihat Audit Trail Global |
+| **Aktor** | Admin (Auditor) |
+| **Deskripsi** | Melihat log immutable semua aktivitas sistem untuk analisis forensik dan verifikasi kepatuhan. |
+| **Pre-kondisi** | - User punya role `AUDITOR`<br/>- Verifikasi MFA selesai untuk sesi |
+| **Post-kondisi** | Event akses log dicatat |
+
+**Alur Utama:**
+1.  Admin navigasi ke **Kepatuhan > Audit Trail**.
+2.  Admin terapkan filter: **Aktor** (contoh: "Supervisor A"), **Entity** ("Purchase Order"), **Rentang Tanggal**, **Aksi** ("Approve").
+3.  Sistem query repository log terpusat (Elasticsearch/Database).
+4.  Sistem tampilkan tabel hasil: **Timestamp**, **User**, **IP**, **Aksi**, **Resource ID**, **Outcome**.
+5.  Admin klik "Lihat Detail" pada record tertentu.
+6.  Sistem tampilkan JSON diff yang menunjukkan `previous_state` vs `new_state`.
+7.  Admin inspeksi field "Rationale" (jika ada).
+
+**Alur Alternatif:**
+*   *Cari by Keyword:* Admin input "PO-2026-001" untuk temukan semua event terkait.
+
+**Alur Exception:**
+*   *Tidak Ada Hasil:* Sistem tampilkan "Tidak ada record yang cocok dengan kriteria."
 
 ---
 
-### 22. UC-ADM-022 Manage Document Templates (PO/RFQ)
+### 12. UC-ADM-012 Ekspor Log Audit (PDF Enkripsi)
 
-1.  **Use Case ID & Name:** UC-ADM-022 Manage Document Templates (PO/RFQ)
-2.  **Actor:** Admin
-3.  **Description:** Upload and configure HTML/PDF templates for official generated documents (PO, RFQ, Contract).
-4.  **Pre-conditions:**
-    *   Templates prepared in HTML/JasperReports.
-5.  **Post-conditions:**
-    *   Generated IDs use new format.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin navigates to **System Config > Templates**.
-    2.  Admin selects Document Type: **Purchase Order**.
-    3.  Admin uploads file: `PO_Template_V2.html`.
-    4.  System parses placeholders (e.g., `{{vendor_name}}`, `{{total_amount}}`).
-    5.  Admin validates Placeholders map to Database Fields.
-    6.  Admin clicks "Preview" with dummy data.
-    7.  Admin publishes as "Default".
-7.  **Alternative Flows:**
-    *   *Branding:* Admin updates Company Logo in the template header.
-8.  **Error/Exception Flows:**
-    *   *Syntax Error:* System rejects template if critical tags (e.g., `{{po_items_loop}}`) are missing.
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-012 Ekspor Log Audit (PDF Enkripsi) |
+| **Aktor** | Admin (Auditor) |
+| **Deskripsi** | Membuat laporan PDF aman, dilindungi password untuk auditor eksternal (KPMG/PwC). |
+| **Pre-kondisi** | Set record audit terpilih (dari UC-ADM-011) |
+| **Post-kondisi** | - File terenkripsi dibuat<br/>- Download dilacak |
 
----
+**Alur Utama:**
+1.  Admin pilih record yang difilter.
+2.  Admin klik "Ekspor Laporan".
+3.  Admin pilih format: **PDF (Resmi)** atau **CSV (Raw Data)**.
+4.  Sistem minta **Password Enkripsi** (untuk proteksi data in transit).
+5.  Admin masukkan dan konfirmasi password.
+6.  Sistem generate file, terapkan watermark ("RAHASIA - MILIK BANK").
+7.  Sistem download file ke mesin lokal Admin.
+8.  Sistem log: "Laporan Audit diekspor oleh Admin X".
 
-### 23. UC-ADM-023 Configure Email Notification Templates
-
-1.  **Use Case ID & Name:** UC-ADM-023 Configure Email Notification Templates
-2.  **Actor:** Admin
-3.  **Description:** Customize email subject lines and body text for system notifications (Approval Request, PO Sent).
-4.  **Pre-conditions:**
-    *   SMTP Server configured.
-5.  **Post-conditions:**
-    *   Emails sent use new copy.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin goes to **Notifications > Email Templates**.
-    2.  Admin selects Event: `PR_PENDING_APPROVAL`.
-    3.  Admin edits Subject: "ACTION REQUIRED: PR #{{pr_id}} needs your approval".
-    4.  Admin adds "Deep Link" button to the body: `<a href="...">Approve Now</a>`.
-    5.  Admin sends "Test Email" to self.
-    6.  Admin saves changes.
-7.  **Alternative Flows:**
-    *   NONE.
-8.  **Error/Exception Flows:**
-    *   NONE.
+**Alur Exception:**
+*   *Volume Terlalu Besar:* Jika record > 100.000, Sistem minta "Jadwalkan Pengiriman Email" sebagai ganti download langsung.
 
 ---
 
-### 24. UC-ADM-024 Manage Holiday/Calendar Settings
+### 13. UC-ADM-013 Konfigurasi Kebijakan Retensi
 
-1.  **Use Case ID & Name:** UC-ADM-024 Manage Holiday/Calendar Settings
-2.  **Actor:** Admin
-3.  **Description:** Setup non-working days to ensure SLA/Deadline calculations (e.g., Delivery Lead Time) skip weekends/holidays.
-4.  **Pre-conditions:**
-    *   Annual Holiday list released by Government.
-5.  **Post-conditions:**
-    *   Calculations adjust automatically.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin goes to **System Config > Working Calendar**.
-    2.  Admin clicks on date (e.g., "Dec 25").
-    3.  Admin toggles "Is Working Day?" to `FALSE`.
-    4.  Admin adds description: "Christmas Day".
-    5.  Status saves automatically.
-7.  **Alternative Flows:**
-    *   *Bulk Import:* Import iCal/CSV for the whole year.
-8.  **Error/Exception Flows:**
-    *   NONE.
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-013 Konfigurasi Kebijakan Retensi |
+| **Aktor** | Admin |
+| **Deskripsi** | Mendefinisikan berapa lama data (Audit Log, Transaksi) disimpan sebelum arsip atau hapus, sesuai regulasi (contoh: 10 Tahun). |
+| **Pre-kondisi** | Super Admin privileges |
+| **Post-kondisi** | System scheduled jobs diupdate |
+
+**Alur Utama:**
+1.  Admin navigasi ke **Konfigurasi Sistem > Retensi Data**.
+2.  Admin pilih Tipe Data: **Log Transaksi**.
+3.  Admin set "Retensi Aktif": **2 Tahun**.
+4.  Admin set "Retensi Arsip": **8 Tahun**.
+5.  Admin pilih "Kebijakan Hapus": **Hard Delete setelah 10 Tahun**.
+6.  Admin klik "Simpan Policy".
+7.  Sistem konfirmasi dan alert: "Perubahan berlaku untuk job arsip mendatang."
+
+**Alur Alternatif:**
+*   *Legal Hold:* Admin aktifkan "Legal Hold" pada tipe data tertentu untuk cegah penghapusan apapun tanpa batas.
+
+**Alur Exception:**
+*   *Warning Kepatuhan:* Admin coba set retensi < 5 Tahun. Sistem warning "Pelanggaran Regulasi Perbankan OJK No. X".
 
 ---
 
-### 25. UC-ADM-025 View System Health Dashboard
+### 14. UC-ADM-014 Buat Laporan Kontrol Akses
 
-1.  **Use Case ID & Name:** UC-ADM-025 View System Health Dashboard
-2.  **Actor:** Admin (IT Ops)
-3.  **Description:** Monitor status of microservices, database connections, queues, and disk space.
-4.  **Pre-conditions:**
-    *   Actuator endpoints exposed.
-5.  **Post-conditions:**
-    *   Admin is informed.
-6.  **Basic Flow (Happy Path):**
-    1.  Admin clicks **System Health**.
-    2.  Dashboard shows Traffic Light status:
-        *   Database (Postgres): **GREEN**
-        *   Message Queue (RabbitMQ): **GREEN**
-        *   Email Service: **YELLOW** (High latency)
-    3.  Admin checks "Disk Usage" on Storage Service.
-    4.  Admin checks "Error Rate" graph.
-7.  **Alternative Flows:**
-    *   NONE.
-8.  **Error/Exception Flows:**
-    *   *System Down:* Dashboard itself is unreachable (External Monitoring tool alerts IT).
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-014 Buat Laporan Kontrol Akses |
+| **Aktor** | Admin |
+| **Deskripsi** | Membuat snapshot siapa punya akses ke apa, untuk Entitlement Review periodik. |
+| **Pre-kondisi** | Tidak ada |
+| **Post-kondisi** | Laporan dibuat |
+
+**Alur Utama:**
+1.  Admin buka **Manajemen User > Laporan**.
+2.  Admin pilih "User Entitlement Matrix".
+3.  Admin filter berdasarkan Departemen: "Treasury".
+4.  Sistem generate matriks yang menunjukkan Users vs Roles vs Permissions.
+5.  Sistem highlight permission **Risiko Tinggi** (contoh: "Approve Payment").
+6.  Admin ekspor atau print untuk quarterly sign-off.
+
+**Alur Exception:**
+*   *Timeout:* Query kompleks timeout. Sistem sarankan jalankan sebagai background job.
+
+---
+
+### 15. UC-ADM-015 Tandai Aktivitas Mencurigakan
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-015 Tandai Aktivitas Mencurigakan |
+| **Aktor** | Admin (Security) |
+| **Deskripsi** | Menandai transaksi atau perilaku user tertentu sebagai "Mencurigakan" secara manual untuk investigasi. |
+| **Pre-kondisi** | Observasi anomali |
+| **Post-kondisi** | - Entity ditandai `UNDER_INVESTIGATION`<br/>- Proses dibekukan (opsional) |
+
+**Alur Utama:**
+1.  Admin lihat Transaksi/Log.
+2.  Admin klik "Tandai untuk Investigasi".
+3.  Admin pilih Tipe: **Fraud Attempt** / **SoD Bypassed**.
+4.  Admin masukkan "Case Notes".
+5.  Sistem update status record ke `FLAGGED`.
+6.  Sistem mungkin bekukan dana/proses terkait (berdasarkan config).
+7.  Sistem kirim alert ke "Tim Fraud".
+
+**Alur Alternatif:**
+*   *Hapus Flag:* Admin review dan tandai sebagai "False Positive".
+
+---
+
+## BAGIAN C: Manajemen Master Data
+
+### 16. UC-ADM-016 Kelola Departemen/Cost Center
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-016 Kelola Departemen/Cost Center |
+| **Aktor** | Admin |
+| **Deskripsi** | Setup struktur organisasi dan kode budget untuk alokasi akuntansi. |
+| **Pre-kondisi** | User adalah Finance/Admin |
+| **Post-kondisi** | Departemen tersedia untuk pembuatan PR |
+
+**Alur Utama:**
+1.  Admin navigasi ke **Master Data > Cost Center**.
+2.  Admin klik "Tambah Baru".
+3.  Admin masukkan **Kode** ("IT-001"), **Nama** ("Information Technology"), **Budget Owner** ("Mr. CTO").
+4.  Admin mapping ke **GL Segment** (untuk integrasi ERP).
+5.  Admin set Status `ACTIVE`.
+6.  Sistem validasi keunikan Kode.
+7.  Sistem simpan record.
+
+**Alur Alternatif:**
+*   *Import:* Admin import hirarki cost center dari ERP (SAP/Oracle).
+
+**Alur Exception:**
+*   *Kode Duplikat:* Sistem reject Cost Center ID duplikat.
+
+---
+
+### 17. UC-ADM-017 Konfigurasi Matriks Approval (SoD)
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-017 Konfigurasi Matriks Approval (SoD) |
+| **Aktor** | Admin |
+| **Deskripsi** | Mendefinisikan workflow approval dinamis berdasarkan jumlah, departemen, dan tipe dokumen. |
+| **Pre-kondisi** | Cost Center sudah didefinisikan |
+| **Post-kondisi** | Logika workflow diupdate |
+
+**Alur Utama:**
+1.  Admin lihat **Approval Rules**.
+2.  Admin buat Rule: "IT PRs > 500M".
+3.  Admin set Kondisi: `Departemen = IT` DAN `Jumlah > 500.000.000`.
+4.  Admin set Urutan Approver:
+    1.  Line Manager.
+    2.  Kepala Divisi.
+    3.  Direktur.
+5.  Admin aktifkan "Escalation Policy" (Forward jika pending > 3 hari).
+6.  Sistem simpan rule.
+
+**Alur Alternatif:**
+*   *Substitute:* Admin assign orang spesifik sebagai ganti role (Tidak direkomendasikan, tapi diizinkan).
+
+**Alur Exception:**
+*   *Gap Config:* Sistem deteksi rentang jumlah tidak tercakup (contoh: 100M-500M tidak ada rule).
+
+---
+
+### 18. UC-ADM-018 Kelola Mata Uang & Kurs
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-018 Kelola Mata Uang & Kurs |
+| **Aktor** | Admin |
+| **Deskripsi** | Maintain daftar mata uang yang diizinkan dan kurs harian untuk pengadaan multi-currency. |
+| **Pre-kondisi** | External Rate API terkonfigurasi (opsional) |
+| **Post-kondisi** | Sistem konversi jumlah asing menggunakan rate baru |
+
+**Alur Utama:**
+1.  Admin buka **Master Data > Mata Uang**.
+2.  Admin pastikan IDR, USD, SGD aktif.
+3.  Admin klik "Update Rate".
+4.  Admin masukkan manual "USD ke IDR = 15.500".
+5.  Admin set Tanggal Efektif: Hari ini.
+6.  Sistem simpan history rate (untuk Audit).
+7.  Sistem hitung ulang ekuivalen Base Currency untuk laporan.
+
+**Alur Alternatif:**
+*   *Auto-Sync:* Sistem tarik rate dari Bloomberg/Reuters API harian pukul 09:00 WIB.
+
+**Alur Exception:**
+*   *Deviasi:* Sistem warning jika rate yang dimasukkan deviasi >10% dari hari sebelumnya (Fat Finger check).
+
+---
+
+### 19. UC-ADM-019 Kelola Kode & Tarif Pajak
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-019 Kelola Kode & Tarif Pajak (PPN/PPh) |
+| **Aktor** | Admin |
+| **Deskripsi** | Konfigurasi tarif pajak sesuai Undang-Undang Perpajakan Indonesia (contoh: PPN 11% -> 12%). |
+| **Pre-kondisi** | Perubahan regulasi pajak |
+| **Post-kondisi** | Kalkulasi pada PO baru mencerminkan pajak terpilih |
+
+**Alur Utama:**
+1.  Admin navigasi ke **Master Data > Kode Pajak**.
+2.  Admin edit kode "PPN".
+3.  Admin ubah Tarif dari `11%` ke `12%`.
+4.  Admin masukkan Deskripsi: "UU HPP 2025".
+5.  Admin cek "Recall PO Lama?": TIDAK (Hanya berlaku untuk yang baru).
+6.  Sistem simpan.
+
+**Alur Alternatif:**
+*   *Buat WHT:* Admin buat "PPh 23" untuk Jasa (2%).
+
+**Alur Exception:**
+*   *Format Tidak Valid:* Rate harus 0-100.
+
+---
+
+### 20. UC-ADM-020 Kelola Unit of Measurement (UoM)
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-020 Kelola Unit of Measurement (UoM) |
+| **Aktor** | Admin |
+| **Deskripsi** | Standarisasi unit (Pcs, Box, Kg, Liter) untuk memastikan konsistensi dalam pemesanan. |
+| **Pre-kondisi** | Tidak ada |
+| **Post-kondisi** | UoM tersedia di dropdown |
+
+**Alur Utama:**
+1.  Admin buka **Master Data > UoM**.
+2.  Admin cek list yang ada.
+3.  Admin tambah "Rim" (untuk Kertas).
+4.  Admin tambah Kode: `RIM`.
+5.  Sistem simpan.
+
+**Alur Alternatif:**
+*   *Konversi:* Admin definisikan "1 Box = 5 Rim".
+
+**Alur Exception:**
+*   *Duplikat:* Kode `RIM` sudah ada.
+
+---
+
+### 21. UC-ADM-021 Kelola Terms Pembayaran
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-021 Kelola Terms Pembayaran |
+| **Aktor** | Admin |
+| **Deskripsi** | Mendefinisikan payment terms standar (Net 30, Net 60, Immediate) untuk assign ke Vendor dan PO. |
+| **Pre-kondisi** | Tidak ada |
+| **Post-kondisi** | Term tersedia untuk seleksi |
+
+**Alur Utama:**
+1.  Admin navigasi ke **Master Data > Payment Terms**.
+2.  Admin klik "Buat Baru".
+3.  Admin masukkan Kode: `NET45`, Deskripsi: "45 Hari setelah Invoice".
+4.  Admin input **Due Days**: `45`.
+5.  Admin cek "Eligible Diskon?": `Tidak`.
+6.  Sistem simpan.
+
+**Alur Alternatif:**
+*   *Early Payment:* Admin definisikan "2/10 Net 30" (diskon 2% jika bayar dalam 10 hari).
+
+**Alur Exception:**
+*   *Konflik:* Admin coba hapus "Net 30" yang digunakan PO aktif. Sistem blok penghapusan.
+
+---
+
+### 22. UC-ADM-022 Kelola Template Dokumen
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-022 Kelola Template Dokumen (PO/RFQ) |
+| **Aktor** | Admin |
+| **Deskripsi** | Upload dan konfigurasi template HTML/PDF untuk dokumen resmi yang di-generate (PO, RFQ, Kontrak). |
+| **Pre-kondisi** | Template disiapkan dalam HTML/JasperReports |
+| **Post-kondisi** | Generated ID menggunakan format baru |
+
+**Alur Utama:**
+1.  Admin navigasi ke **Konfigurasi Sistem > Template**.
+2.  Admin pilih Tipe Dokumen: **Purchase Order**.
+3.  Admin upload file: `PO_Template_V2.html`.
+4.  Sistem parsing placeholder (contoh: `{{vendor_name}}`, `{{total_amount}}`).
+5.  Admin validasi Placeholder mapping ke Database Fields.
+6.  Admin klik "Preview" dengan dummy data.
+7.  Admin publish sebagai "Default".
+
+**Alur Alternatif:**
+*   *Branding:* Admin update Logo Perusahaan di template header.
+
+**Alur Exception:**
+*   *Syntax Error:* Sistem reject template jika tag kritis (contoh: `{{po_items_loop}}`) hilang.
+
+---
+
+### 23. UC-ADM-023 Konfigurasi Template Email Notifikasi
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-023 Konfigurasi Template Email Notifikasi |
+| **Aktor** | Admin |
+| **Deskripsi** | Kustomisasi subject line dan body text email untuk notifikasi sistem (Approval Request, PO Terkirim). |
+| **Pre-kondisi** | SMTP Server terkonfigurasi |
+| **Post-kondisi** | Email terkirim menggunakan copy baru |
+
+**Alur Utama:**
+1.  Admin buka **Notifikasi > Template Email**.
+2.  Admin pilih Event: `PR_PENDING_APPROVAL`.
+3.  Admin edit Subject: "AKSI DIPERLUKAN: PR #{{pr_id}} butuh approval Anda".
+4.  Admin tambah tombol "Deep Link" di body: `<a href="...">Approve Sekarang</a>`.
+5.  Admin kirim "Test Email" ke diri sendiri.
+6.  Admin simpan perubahan.
+
+---
+
+### 24. UC-ADM-024 Kelola Kalender Hari Libur
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-024 Kelola Kalender Hari Libur |
+| **Aktor** | Admin |
+| **Deskripsi** | Setup hari non-kerja untuk memastikan kalkulasi SLA/Deadline (contoh: Lead Time Pengiriman) skip weekend/hari libur. |
+| **Pre-kondisi** | Daftar Hari Libur tahunan dari Pemerintah dirilis |
+| **Post-kondisi** | Kalkulasi adjust otomatis |
+
+**Alur Utama:**
+1.  Admin buka **Konfigurasi Sistem > Kalender Kerja**.
+2.  Admin klik tanggal (contoh: "25 Des").
+3.  Admin toggle "Hari Kerja?" ke `FALSE`.
+4.  Admin tambah deskripsi: "Hari Natal".
+5.  Status tersimpan otomatis.
+
+**Alur Alternatif:**
+*   *Bulk Import:* Import iCal/CSV untuk setahun penuh.
+
+---
+
+### 25. UC-ADM-025 Lihat Dashboard Kesehatan Sistem
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-ADM-025 Lihat Dashboard Kesehatan Sistem |
+| **Aktor** | Admin (IT Ops) |
+| **Deskripsi** | Monitor status microservice, koneksi database, queue, dan disk space. |
+| **Pre-kondisi** | Actuator endpoints exposed |
+| **Post-kondisi** | Admin informed |
+
+**Alur Utama:**
+1.  Admin klik **Kesehatan Sistem**.
+2.  Dashboard tampilkan status Traffic Light:
+    *   Database (Postgres): **HIJAU**
+    *   Message Queue (RabbitMQ): **HIJAU**
+    *   Email Service: **KUNING** (Latency tinggi)
+3.  Admin cek "Penggunaan Disk" pada Storage Service.
+4.  Admin cek grafik "Error Rate".
+
+**Alur Exception:**
+*   *Sistem Down:* Dashboard sendiri unreachable (External Monitoring tool alert IT).

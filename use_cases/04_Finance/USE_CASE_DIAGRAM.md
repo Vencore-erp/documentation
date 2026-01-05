@@ -1,49 +1,49 @@
-# Use Case Diagram: Finance Actor
+# Diagram Use Case: Aktor Finance
 
-## Overview
-The Finance actor is responsible for invoice verification, payment execution, tax compliance, and financial reconciliation.
+## Gambaran Umum
+Aktor Finance bertanggung jawab untuk verifikasi invoice, eksekusi pembayaran, kepatuhan pajak, dan rekonsiliasi keuangan.
 
-## Use Case Diagram
+## Diagram Use Case
 
 ```mermaid
 graph LR
     Finance((Finance))
 
-    subgraph "Invoice Processing"
-        UC001[UC-FIN-001<br/>Receive Invoice]
-        UC002[UC-FIN-002<br/>Verify Tax Invoice]
+    subgraph "Pemrosesan Invoice"
+        UC001[UC-FIN-001<br/>Terima Invoice]
+        UC002[UC-FIN-002<br/>Verifikasi Faktur Pajak]
         UC003[UC-FIN-003<br/>3-Way Matching]
-        UC004[UC-FIN-004<br/>Handle Dispute]
-        UC005[UC-FIN-005<br/>Approve Invoice]
-        UC006[UC-FIN-006<br/>Apply WHT]
-        UC007[UC-FIN-007<br/>Calculate Penalty]
+        UC004[UC-FIN-004<br/>Tangani Dispute]
+        UC005[UC-FIN-005<br/>Setujui Invoice]
+        UC006[UC-FIN-006<br/>Terapkan WHT]
+        UC007[UC-FIN-007<br/>Hitung Penalti]
     end
 
-    subgraph "Payments"
-        UC008[UC-FIN-008<br/>Create Payment Voucher]
-        UC009[UC-FIN-009<br/>Process Batch Payment]
-        UC010[UC-FIN-010<br/>Update Payment Status]
-        UC021[UC-FIN-021<br/>Create Payment Batch]
-        UC022[UC-FIN-022<br/>Schedule Payment]
-        UC023[UC-FIN-023<br/>Handle Partial Payment]
-        UC024[UC-FIN-024<br/>Generate Remittance]
-        UC025[UC-FIN-025<br/>Void Payment]
+    subgraph "Pembayaran"
+        UC008[UC-FIN-008<br/>Buat Payment Voucher]
+        UC009[UC-FIN-009<br/>Proses Batch Pembayaran]
+        UC010[UC-FIN-010<br/>Update Status Pembayaran]
+        UC021[UC-FIN-021<br/>Buat Batch Pembayaran]
+        UC022[UC-FIN-022<br/>Jadwalkan Pembayaran]
+        UC023[UC-FIN-023<br/>Tangani Pembayaran Parsial]
+        UC024[UC-FIN-024<br/>Buat Remittance]
+        UC025[UC-FIN-025<br/>Batalkan Pembayaran]
     end
 
-    subgraph "GL & Reconciliation"
-        UC011[UC-FIN-011<br/>Reconcile Bank Statement]
-        UC012[UC-FIN-012<br/>Map GL Accounts]
-        UC013[UC-FIN-013<br/>Post to General Ledger]
-        UC014[UC-FIN-014<br/>Manage Petty Cash]
+    subgraph "GL & Rekonsiliasi"
+        UC011[UC-FIN-011<br/>Rekonsiliasi Rekening Koran]
+        UC012[UC-FIN-012<br/>Mapping Akun GL]
+        UC013[UC-FIN-013<br/>Posting ke General Ledger]
+        UC014[UC-FIN-014<br/>Kelola Kas Kecil]
     end
 
-    subgraph "Reporting"
-        UC015[UC-FIN-015<br/>View AP Aging]
+    subgraph "Pelaporan"
+        UC015[UC-FIN-015<br/>Lihat AP Aging]
         UC016[UC-FIN-016<br/>Monitor Cash Flow]
-        UC017[UC-FIN-017<br/>Manage Corp Cards]
-        UC018[UC-FIN-018<br/>Generate Tax Report]
-        UC019[UC-FIN-019<br/>Archive Documents]
-        UC020[UC-FIN-020<br/>Refund Processing]
+        UC017[UC-FIN-017<br/>Kelola Kartu Kredit Korporat]
+        UC018[UC-FIN-018<br/>Buat Laporan Pajak]
+        UC019[UC-FIN-019<br/>Arsipkan Dokumen]
+        UC020[UC-FIN-020<br/>Proses Refund]
     end
 
     Finance --> UC001
@@ -73,32 +73,32 @@ graph LR
     Finance --> UC025
 ```
 
-## Use Case Summary Table
+## Tabel Ringkasan Use Case
 
-| ID | Use Case Name | Category |
+| ID | Nama Use Case | Kategori |
 |:---|:---|:---|
-| UC-FIN-001 | Receive Vendor Invoice | Invoice |
-| UC-FIN-002 | Verify Tax Invoice (Faktur) | Compliance |
-| UC-FIN-003 | Perform 3-Way Matching | Invoice |
-| UC-FIN-004 | Handle Invoice Dispute | Invoice |
-| UC-FIN-005 | Approve Invoice for Payment | Invoice |
-| UC-FIN-006 | Apply Withholding Tax | Tax |
-| UC-FIN-007 | Calculate Penalty/Demurrage | Invoice |
-| UC-FIN-008 | Create Payment Voucher | Payment |
-| UC-FIN-009 | Process Batch Payment | Payment |
-| UC-FIN-010 | Update Payment Status | Payment |
-| UC-FIN-011 | Reconcile Bank Statement | Reconciliation |
-| UC-FIN-012 | Map GL Accounts | GL |
-| UC-FIN-013 | Post to General Ledger | GL |
-| UC-FIN-014 | Manage Petty Cash | Cash |
-| UC-FIN-015 | View Accounts Payable Aging | Reporting |
-| UC-FIN-016 | Monitor Cash Flow Projection | Reporting |
-| UC-FIN-017 | Manage Corporate Credit Cards | Cash |
-| UC-FIN-018 | Generate Tax Report (PPh/PPN) | Reporting |
-| UC-FIN-019 | Archive Financial Documents | Admin |
-| UC-FIN-020 | Refund Processing | Payment |
-| UC-FIN-021 | Create Payment Batch | Payment |
-| UC-FIN-022 | Schedule Payment for Future Date | Payment |
-| UC-FIN-023 | Handle Partial Payment | Payment |
-| UC-FIN-024 | Generate Payment Remittance | Payment |
-| UC-FIN-025 | Void/Reverse Payment | Payment |
+| UC-FIN-001 | Terima Invoice Vendor | Invoice |
+| UC-FIN-002 | Verifikasi Faktur Pajak | Kepatuhan |
+| UC-FIN-003 | Lakukan 3-Way Matching | Invoice |
+| UC-FIN-004 | Tangani Dispute Invoice | Invoice |
+| UC-FIN-005 | Setujui Invoice untuk Pembayaran | Invoice |
+| UC-FIN-006 | Terapkan Withholding Tax | Pajak |
+| UC-FIN-007 | Hitung Penalti/Demurrage | Invoice |
+| UC-FIN-008 | Buat Payment Voucher | Pembayaran |
+| UC-FIN-009 | Proses Batch Pembayaran | Pembayaran |
+| UC-FIN-010 | Update Status Pembayaran | Pembayaran |
+| UC-FIN-011 | Rekonsiliasi Rekening Koran | Rekonsiliasi |
+| UC-FIN-012 | Mapping Akun GL | GL |
+| UC-FIN-013 | Posting ke General Ledger | GL |
+| UC-FIN-014 | Kelola Kas Kecil | Kas |
+| UC-FIN-015 | Lihat Accounts Payable Aging | Pelaporan |
+| UC-FIN-016 | Monitor Proyeksi Cash Flow | Pelaporan |
+| UC-FIN-017 | Kelola Kartu Kredit Korporat | Kas |
+| UC-FIN-018 | Buat Laporan Pajak (PPh/PPN) | Pelaporan |
+| UC-FIN-019 | Arsipkan Dokumen Keuangan | Admin |
+| UC-FIN-020 | Proses Refund | Pembayaran |
+| UC-FIN-021 | Buat Batch Pembayaran | Pembayaran |
+| UC-FIN-022 | Jadwalkan Pembayaran Tanggal Mendatang | Pembayaran |
+| UC-FIN-023 | Tangani Pembayaran Parsial | Pembayaran |
+| UC-FIN-024 | Buat Remittance Pembayaran | Pembayaran |
+| UC-FIN-025 | Batalkan/Reverse Pembayaran | Pembayaran |
