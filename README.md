@@ -22,9 +22,33 @@ This repository contains the complete technical and functional documentation for
         *   [Finance (Payments)](./use_cases/04_Finance/Finance_Use_Cases.md)
         *   [Vendor (Portal)](./use_cases/05_Vendor/Vendor_Use_Cases.md)
 
-### Technical Architecture
-*   **[Microservices Architecture](./SERVICES.md):** Breakdown of the 10+ services (Auth, Procurement, Finance, etc.).
-*   **[API Documentation](./BACKEND_API_DOCUMENTATION.md):** OpenAPI/Swagger reference for backend integration.
+### [System Design](./system_design/README.md)
+*   **Location:** [`/documentation/system_design`](./system_design/)
+*   **Content:**
+    *   [Architecture Overview](./system_design/ARCHITECTURE.md) - Microservices & Event-Driven Architecture
+    *   [Microservices Specification](./system_design/MICROSERVICES.md) - 10+ service breakdown
+    *   [Database Schema](./system_design/DATABASE_SCHEMA.md) - Entity relationships & tables
+    *   [API Contract](./system_design/API_CONTRACT.md) - RESTful API specifications
+    *   [Event Catalog](./system_design/EVENT_CATALOG.md) - Event-driven messaging
+    *   [Package Diagram](./system_design/PACKAGE_DIAGRAM.md) - System package structure
+    *   [Security Guidelines](./system_design/SECURITY_GUIDELINES.md) - ISO 27001 implementation
+    *   [NFR Requirements](./system_design/NFR_REQUIREMENTS.md) - Non-functional requirements
+
+### [Frontend Specifications](./frontend_specs/README.md)
+*   **Location:** [`/documentation/frontend_specs`](./frontend_specs/)
+*   **Content:** Panduan lengkap untuk tim frontend membangun antarmuka sistem
+    *   [Authentication](./frontend_specs/01_authentication/) - Login, Register, 2FA
+    *   [Dashboard](./frontend_specs/02_dashboard/) - Dashboard per role
+    *   [Admin Panel](./frontend_specs/03_admin/) - User, Role, Master Data
+    *   [Procurement](./frontend_specs/04_procurement/) - PR, RFQ, PO, GR
+    *   [Vendor Management](./frontend_specs/05_vendor_management/) - Vendor lifecycle
+    *   [Finance](./frontend_specs/06_finance/) - Invoice, Payment, Budget
+    *   [Vendor Portal](./frontend_specs/07_vendor_portal/) - External vendor access
+    *   [Reporting](./frontend_specs/08_reporting/) - Analytics & Reports
+    *   [Shared Components](./frontend_specs/09_shared_components/) - Reusable UI components
+    *   [Notifications](./frontend_specs/10_notifications/) - Real-time notifications
+
+### Technical Guides
 *   **[Development Guide](./DEVELOPMENT.md):** Setup, Build, and Deployment instructions.
 *   **[Testing Strategy](./TESTING.md):** Unit, Integration, and Security testing plans.
 
