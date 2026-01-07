@@ -37,6 +37,18 @@ Modul untuk tim Finance mengelola invoice, pembayaran, dan rekonsiliasi.
 - Tax calculation verification
 - Approve/Reject with notes
 
+#### 1.4 Create Invoice Entry (`/finance/invoices/create`) **(NEW)**
+**Deskripsi:**
+Halaman form manual untuk mendaftarkan invoice yang diterima dari vendor (jika tidak via Portal).
+
+**Komponen:**
+- **Invoice Type Selector:** Dropdown [Standard PO / Contract Termin / Non-PO].
+- **Reference Selector:**
+  - Jika PO: Pilih PO Number (Auto-fill items).
+  - **Jika Contract:** Pilih Contract No -> **Dropdown Termin/Milestone** (e.g., "Termin 1 - 20%").
+- **Invoice Fields:** Vendor Invoice No, Date, Total Amount.
+- **File Upload:** Drag & drop PDF scan invoice.
+
 ---
 
 ### 2. Payment Processing

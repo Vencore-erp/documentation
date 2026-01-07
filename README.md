@@ -1,9 +1,10 @@
-# Enterprise e-Procurement System Documentation
+# Dokumentasi Sistem Pengadaan PT XYZ
 
 ## Thesis Overview
-**Project Title:** Enterprise e-Procurement System for Banking (ISO 27001 Compliant)
-**Context:** Final Thesis Project (Tugas Akhir)
-**Compliance:** ISO 27001, Sarbanes-Oxley (SOX), OJK/BI Regulations
+**Judul:** Pembangunan Sistem Internal Pengadaan Barang dan Jasa PT XYZ Menggunakan Arsitektur Microservices
+
+**Studi Kasus:** PT XYZ (Institusi Keuangan)
+**Teknologi:** Spring Boot Microservices, Next.js, Event-Driven Architecture
 
 ---
 
@@ -21,6 +22,17 @@ This repository contains the complete technical and functional documentation for
         *   [Supervisor (Approvals)](./use_cases/03_Supervisor/Supervisor_Use_Cases.md)
         *   [Finance (Payments)](./use_cases/04_Finance/Finance_Use_Cases.md)
         *   [Vendor (Portal)](./use_cases/05_Vendor/Vendor_Use_Cases.md)
+
+### [Thesis Documentation](./thesis/README.md)
+*   **Location:** [`/documentation/thesis`](./thesis/)
+*   **Content:** Dokumentasi thesis lengkap dalam format Bahasa Indonesia
+    *   [BAB I - Pendahuluan](./thesis/BAB_I_PENDAHULUAN.md) - Latar Belakang, Rumusan Masalah, Tujuan
+    *   [BAB II - Tinjauan Pustaka](./thesis/BAB_II_TINJAUAN_PUSTAKA.md) - Landasan Teori, Penelitian Terdahulu
+    *   [BAB III - Metodologi](./thesis/BAB_III_METODOLOGI.md) - Metodologi Penelitian
+    *   [BAB IV - Analisis & Perancangan](./thesis/BAB_IV_ANALISIS_PERANCANGAN.md) - Arsitektur, Database, API
+    *   [BAB V - Implementasi & Pengujian](./thesis/BAB_V_IMPLEMENTASI_PENGUJIAN.md) - Hasil Testing
+    *   [BAB VI - Penutup](./thesis/BAB_VI_PENUTUP.md) - Kesimpulan, Saran
+    *   Lampiran: [Use Cases](./thesis/LAMPIRAN_A_USE_CASES.md) | [Database](./thesis/LAMPIRAN_B_DATABASE_SCHEMA.md) | [API](./thesis/LAMPIRAN_C_API_SPECIFICATION.md) | [UI](./thesis/LAMPIRAN_D_UI_MOCKUPS.md)
 
 ### [System Design](./system_design/README.md)
 *   **Location:** [`/documentation/system_design`](./system_design/)

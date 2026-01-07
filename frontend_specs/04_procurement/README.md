@@ -133,3 +133,38 @@ Core module untuk proses pengadaan dari Purchase Requisition (PR) hingga Purchas
 - GR information
 - PO linkage
 - Discrepancy notes if any
+
+---
+
+### 5. Contract Management (NEW)
+
+#### 5.1 Contract List (`/operator/contracts`)
+**Deskripsi:**
+Halaman untuk manajemen kontrak jangka panjang dan pembayaran bertahap (Termin).
+
+**Komponen:**
+- Search by Contract ID / Vendor
+- Filter Status (Active, Draft, Expired)
+- Button "New Contract"
+
+**Columns:**
+- Contract No, Title, Vendor, Period, Total Value, Status, Action
+
+#### 5.2 Contract Detail (`/operator/contracts/:id`)
+**Deskripsi:**
+Detail kontrak yang mencakup jadwal pembayaran (Milestones/Termin).
+
+**Komponen:**
+- **Contract Header:** Total Value, Paid Amount, Progress Bar.
+- **Payment Terms:** Monthly / Milestone based.
+- **Milestone Table:**
+  - List Termin (DP, Termin 1, Termin 2, Retention).
+  - Kolom: Due Date, %, Amount, Status (Paid, Pending Billing, Locked).
+  - Action: "Create Bill" untuk termin yang sudah jatuh tempo.
+
+#### 5.3 Contract Creation (`/operator/contracts/new`)
+**Komponen:**
+- Vendor Selection (from Master Data).
+- Contract Period (Start - End Date).
+- Total Contract Value.
+- **Termin Generator:** Input jumlah termin (misal 4), auto-split percentage (25% x 4) atau manual adjustment.
