@@ -150,7 +150,7 @@ graph TB
 
 | Komponen | Teknologi | Versi | Deskripsi |
 |:---|:---|:---|:---|
-| **Framework** | Spring Boot | 3.2.x | Java 21, Virtual Threads |
+| **Framework** | Spring Boot | 4.0.0 | Java 21, Virtual Threads |
 | **API** | Spring WebFlux | 3.2.x | Reactive REST APIs |
 | **Security** | Spring Security | 6.x | JWT, OAuth2, RBAC |
 | **Data Access** | Spring Data JPA | 3.2.x | Hibernate 6 |

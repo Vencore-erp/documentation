@@ -1,6 +1,6 @@
 # Dokumentasi Microservices Detail
 **Enterprise e-Procurement ERP**
-**Versi:** 2.0 | **Framework:** Spring Boot 3.2
+**Versi:** 2.0 | **Framework:** Spring Boot 4.0.0
 
 ---
 

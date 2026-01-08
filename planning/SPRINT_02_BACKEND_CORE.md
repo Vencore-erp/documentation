@@ -15,12 +15,12 @@
 ## 📋 Task List
 
 ### 1. Infrastructure Setup
-- [ ] **Docker:** Buat `docker-compose.yml` utama.
-  - [ ] Service: PostgreSQL (Database).
-  - [ ] Service: Redis (Caching/Session).
-  - [ ] Service: Kafka + Zookeeper (Event Bus).
-  - [ ] Service: MinIO (File Storage Local).
-- [ ] **Database:** Init script untuk create user/schema (`auth_db`, `procurement_db`, `finance_db`).
+- [x] **Docker:** Buat `docker-compose.yml` utama.
+  - [x] Service: PostgreSQL (Database).
+  - [x] Service: Redis (Caching/Session).
+  - [x] Service: Kafka + Zookeeper (Event Bus).
+  - [x] Service: MinIO (File Storage Local).
+- [x] **Database:** Init script untuk create user/schema (`auth_db`, `procurement_db`, `finance_db`).
 
 ### 2. Service: API Gateway (Spring Cloud Gateway)
 - [ ] Init Spring Boot Project.

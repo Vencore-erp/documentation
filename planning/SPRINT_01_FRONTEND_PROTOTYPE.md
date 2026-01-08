@@ -17,22 +17,26 @@
 ### 1. Feature: Contract Management (Operator)
 - [x] Page: Contract List UI.
 - [x] Page: Contract Detail UI (Milestone Table).
-- [ ] **Action:** Make "Create Bill" button functional (Mock: Create Draft Invoice).
-- [ ] **Page:** Billing Request Form (`/operator/billing/create`).
+- [x] **Action:** Make "Create Bill" button functional (Mock: Create Draft Invoice).
+- [x] **Page:** Billing Request Form (`/operator/billing/create`).
 
 ### 2. Feature: Invoice Entry (Finance)
 - [x] Page: Invoice Create Form.
-- [ ] **Logic:** Auto-calculate Tax (PPN 11%) saat input amount mock.
-- [ ] **Mock:** Submit form -> Muncul di Invoice List (Temporary State).
+- [x] **Logic:** Auto-calculate Tax (PPN 11%) saat input amount mock.
+- [x] **Mock:** Submit form -> Muncul di Invoice List (Temporary State).
 
-### 3. Utility: Testing Aid
-- [ ] **Component:** `ResetButton` (Clear LocalStorage + Redirect to Login).
+### 3. Feature: Supervisor Interactions (Additional)
+- [x] **Page:** Approval List UI (`/procurement/approvals`).
+- [x] **Action:** Approve/Reject PR (Mock with Toast).
+
+### 4. Utility: Testing Aid
+- [x] **Component:** `ResetButton` (Clear LocalStorage + Redirect to Login).
 - [ ] **Feature:** Pre-fill Login Credentials (biar tester ga capek ngetik).
   - [ ] Klik "Login as Operator" -> Auto fill email/pass.
 
-### 4. Polish & Deployment
-- [ ] **Review:** Cek typo bahasa/label.
-- [ ] **Deploy:** Push to GitHub & Connector to Vercel/Netlify.
+### 5. Polish & Deployment
+- [x] **Review:** Cek typo bahasa/label.
+- [x] **Deploy:** Push to GitHub & Connector to Vercel/Netlify.
 
 ---
 
