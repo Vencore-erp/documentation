@@ -1,32 +1,35 @@
-# Database Schema & Entity Relationship Diagrams
-**Version:** 1.0
-**Date:** January 2026
-**Pattern:** Database-per-Service (Microservices)
+# Skema Database & Diagram Hubungan Entitas (ERD)
+**Versi:** 1.1 - Detailed
+**Tanggal:** Januari 2026
+**Pola Arsitektur:** Database-per-Service (Microservices)
 
 ---
 
-## 1. Overview
+## 1. Tinjauan Umum (Overview)
 
-Each microservice owns its own database schema. This document defines the core tables, relationships, and constraints for each bounded context.
+Sistem ini dibangun di atas arsitektur **Microservices**, yang menuntut pemisahan data yang ketat. Berbeda dengan sistem *monolithic* tradisional di mana semua data berada dalam satu database raksasa (shared database), sistem ini menerapkan pola **Database-per-Service**.
 
-**Database Technology:** PostgreSQL 16
-**Naming Convention:** `snake_case` for tables and columns
-**Soft Delete:** All entities use `is_deleted` flag instead of hard delete
+### Prinsip Utama Perancangan:
+1.  **Isolasi Data (Data Isolation):** Setiap layanan (microservice) memiliki skema database privatnya sendiri. Layanan A tidak boleh melakukan *query* langsung ke tabel milik Layanan B. Akses data lintas layanan hanya diperbolehkan melalui API resmi atau publikasi *event*.
+2.  **Kepemilikan Jelas (Clear Ownership):** Setiap tabel memiliki satu "pemilik" tunggal. Contoh: Tabel `vendors` hanya boleh ditulis/diubah oleh **Vendor Service**.
+3.  **Integritas Referensial Logis:** Karena database terpisah secara fisik, tidak ada *Foreign Key constraint* keras antar layanan. Referensi disimpan sebagai UUID dan validitasnya dijaga melalui mekanisme logis (pengecekan API) dan konsistensi akhir (*eventual consistency*).
+4.  **Standar Audit:** Seluruh tabel transaksional wajib memiliki kolom audit standar (`created_at`, `updated_at`, `is_deleted`) untuk memastikan jejak data yang baik dan mendukung *soft delete*.
 
 ---
 
-## 2. Auth Service Schema
+## 2. Layanan Autentikasi (Auth Service)
 
-### 2.1 ERD
+Layanan ini adalah gerbang keamanan sistem. Fokus utamanya adalah manajemen **Identitas** (siapa pengguna ini?) dan **Akses** (apa hak pengguna ini?).
 
+### 2.1 Peta Hubungan Entitas (ERD)
 ```mermaid
 erDiagram
-    users ||--o{ user_roles : has
-    roles ||--o{ user_roles : assigned_to
-    roles ||--o{ role_permissions : has
-    permissions ||--o{ role_permissions : granted_to
-    users ||--o{ refresh_tokens : has
-    users ||--o{ login_history : logs
+    users ||--o{ user_roles : memilliki
+    roles ||--o{ user_roles : diberikan_pada
+    roles ||--o{ role_permissions : terdiri_dari
+    permissions ||--o{ role_permissions : didefinisikan_di
+    users ||--o{ refresh_tokens : memiliki
+    users ||--o{ login_history : mencatat
 
     users {
         uuid id PK
@@ -35,125 +38,96 @@ erDiagram
         string password_hash
         boolean is_active
         boolean is_mfa_enabled
-        string mfa_secret
         timestamp last_login
         int failed_attempts
-        timestamp locked_until
         boolean is_deleted
         timestamp created_at
         timestamp updated_at
     }
-
     roles {
         uuid id PK
         string name UK
-        string description
         boolean is_system_role
-        boolean is_deleted
-        timestamp created_at
     }
-
     permissions {
         uuid id PK
         string code UK
-        string name
         string module
-        string description
     }
-
     user_roles {
         uuid id PK
         uuid user_id FK
         uuid role_id FK
-        timestamp assigned_at
-        uuid assigned_by FK
     }
-
     role_permissions {
         uuid id PK
         uuid role_id FK
         uuid permission_id FK
     }
-
     refresh_tokens {
         uuid id PK
         uuid user_id FK
         string token_hash UK
         timestamp expires_at
         boolean is_revoked
-        string device_info
-        timestamp created_at
     }
-
     login_history {
         uuid id PK
         uuid user_id FK
         string ip_address
-        string user_agent
         string status
         timestamp login_at
     }
 ```
 
-### 2.2 Key Tables
+### 2.2 Penjelasan Mendetail Entitas
 
-| Table | Description | Key Columns |
-|:---|:---|:---|
-| `users` | All system users (Internal & External) | `username`, `email`, `password_hash` |
-| `roles` | Role definitions (ADMIN, OPERATOR, etc.) | `name`, `is_system_role` |
-| `permissions` | Granular permissions | `code` (e.g., `PR_CREATE`) |
-| `user_roles` | Many-to-many: User ↔ Role | `user_id`, `role_id` |
-| `role_permissions` | Many-to-many: Role ↔ Permission | `role_id`, `permission_id` |
-| `refresh_tokens` | JWT refresh token storage | `token_hash`, `expires_at` |
-| `login_history` | Audit: login attempts | `ip_address`, `status` |
+#### Tabel `users`
+Tabel ini adalah pusat identitas. Ia tidak menyimpan profil detail (seperti alamat atau jabatan), melainkan hanya data kredensial vital.
+*   `password_hash`: Menyimpan kata sandi yang telah di-hash (misal menggunakan BCrypt), bukan teks asli.
+*   `is_mfa_enabled`: Menandakan apakah pengguna wajib memasukkan kode OTP (2FA) saat login.
+*   `failed_attempts`: Digunakan untuk mekanisme keamanan; jika gagal login berturut-turut (misal 5 kali), akun akan dikunci sementara.
+
+#### Tabel `roles` & `permissions`
+Sistem ini menggunakan **Role-Based Access Control (RBAC)** yang fleksibel.
+*   `permissions`: Unit terkecil dari hak akses. Contoh: `PR_CREATE` (membuat PR), `PR_APPROVE` (menyetujui PR).
+*   `roles`: Kumpulan dari permission. Contoh: Role `STAFF_PROCUREMENT` mungkin memiliki permission `PR_CREATE` dan `RFQ_CREATE`, namun tidak memiliki `PR_APPROVE`.
+*   Relasi `user_roles` memungkinkan satu user memiliki banyak role sekaligus (misal: seorang Manager yang juga merangkap sebagai Admin sementara).
 
 ---
 
-## 3. User Service Schema
+## 3. Layanan Pengguna (User Service)
 
-### 3.1 ERD
+Jika Auth Service menangani "login", User Service menangani "profil". Layanan ini menyimpan struktur organisasi perusahaan.
 
+### 3.1 Peta Hubungan Entitas (ERD)
 ```mermaid
 erDiagram
     user_profiles ||--|| users : extends
-    user_profiles ||--o{ user_departments : belongs_to
-    departments ||--o{ user_departments : contains
-    cost_centers ||--o{ user_profiles : assigned
+    user_profiles ||--o{ user_departments : ditempatkan_di
+    departments ||--o{ user_departments : memiliki_anggota
+    cost_centers ||--o{ user_profiles : dibebankan_ke
 
     user_profiles {
         uuid id PK
-        uuid user_id FK,UK
-        string employee_id UK
-        string first_name
-        string last_name
-        string phone
+        uuid user_id FK "(Unique) Link ke Auth Service"
+        string employee_id UK "NIP"
+        string full_name
         string position
-        uuid department_id FK
-        uuid cost_center_id FK
-        uuid manager_id FK
-        boolean is_deleted
-        timestamp created_at
-        timestamp updated_at
+        uuid manager_id FK "Hirarki Atasan"
     }
-
     departments {
         uuid id PK
         string code UK
         string name
-        uuid parent_id FK
-        boolean is_active
-        timestamp created_at
+        uuid parent_id FK "Struktur Pohon"
     }
-
     cost_centers {
         uuid id PK
         string code UK
         string name
-        string description
         boolean is_active
-        timestamp created_at
     }
-
     user_departments {
         uuid id PK
         uuid user_id FK
@@ -162,774 +136,235 @@ erDiagram
     }
 ```
 
+### 3.2 Penjelasan Mendetail Entitas
+
+#### Tabel `user_profiles`
+Menyimpan atribut bisnis pengguna.
+*   `manager_id`: Kolom rekursif yang menunjuk ke user lain. Ini sangat krusial untuk **Workflow Approval** (misal: PR harus disetujui oleh atasan langsung).
+*   `user_id`: Foreign Key logis yang menghubungkan profil ini dengan akun login di Auth Service.
+
+#### Tabel `departments` & `cost_centers`
+*   `departments`: Struktur organisasi hierarkis (Parent-Child). Contoh: Divisi IT (Parent) -> Tim Development (Child).
+*   `cost_centers`: Digunakan untuk pemetaan anggaran. Setiap karyawan biasanya terikat pada satu cost center utama, yang akan menjadi *default charging* saat mereka membuat PR.
+
 ---
 
-## 4. Procurement Service Schema
+## 4. Layanan Pengadaan (Procurement Service)
 
-### 4.1 ERD
+Jantung dari sistem. Layanan ini mengelola alur dokumen transaksional dari kebutuhan hingga pemesanan.
+
+### 4.1 Peta Hubungan Entitas (ERD)
 
 ```mermaid
 erDiagram
-    purchase_requisitions ||--o{ pr_items : contains
-    purchase_requisitions ||--o{ pr_approvals : requires
-    purchase_requisitions ||--o{ rfqs : generates
-    rfqs ||--o{ rfq_items : contains
-    rfqs ||--o{ rfq_vendors : invites
-    rfqs ||--o{ quotations : receives
-    quotations ||--o{ quotation_items : contains
-    purchase_orders ||--o{ po_items : contains
-    purchase_orders ||--o{ po_approvals : requires
+    purchase_requisitions ||--o{ pr_items : berisi
+    purchase_requisitions ||--o{ pr_approvals : butuh
+    purchase_requisitions ||--o{ rfqs : lanjut_ke
+    rfqs ||--o{ rfq_items : berisi
+    rfqs ||--o{ rfq_vendors : mengundang
+    rfqs ||--o{ quotations : menerima
+    quotations ||--o{ quotation_items : berisi
+    purchase_orders ||--o{ po_items : berisi
 
     purchase_requisitions {
         uuid id PK
         string pr_number UK
-        string title
-        text description
-        uuid requester_id FK
-        uuid department_id FK
-        uuid cost_center_id FK
+        uuid requester_id
         decimal total_estimated_amount
-        string currency
-        date required_date
         string status
         string priority
-        boolean is_deleted
-        timestamp created_at
-        timestamp updated_at
     }
-
-    pr_items {
-        uuid id PK
-        uuid pr_id FK
-        int line_number
-        string item_description
-        string specifications
-        decimal quantity
-        string uom
-        decimal estimated_unit_price
-        decimal estimated_total
-        string category
-    }
-
     pr_approvals {
         uuid id PK
         uuid pr_id FK
-        uuid approver_id FK
+        uuid approver_id
         int approval_level
         string status
-        text comments
-        timestamp decided_at
     }
-
     rfqs {
         uuid id PK
         string rfq_number UK
         uuid pr_id FK
-        string title
-        string rfq_type
         string bidding_type
-        timestamp open_date
         timestamp close_date
         string status
-        boolean is_anonymous
-        timestamp created_at
     }
-
-    rfq_items {
-        uuid id PK
-        uuid rfq_id FK
-        uuid pr_item_id FK
-        string item_description
-        string specifications
-        decimal quantity
-        string uom
-    }
-
-    rfq_vendors {
-        uuid id PK
-        uuid rfq_id FK
-        uuid vendor_id FK
-        string invitation_status
-        timestamp invited_at
-        timestamp responded_at
-    }
-
     quotations {
         uuid id PK
-        string quotation_number UK
         uuid rfq_id FK
         uuid vendor_id FK
         decimal total_amount
-        string currency
-        int validity_days
         string status
-        text notes
-        timestamp submitted_at
     }
-
-    quotation_items {
-        uuid id PK
-        uuid quotation_id FK
-        uuid rfq_item_id FK
-        decimal unit_price
-        decimal quantity
-        decimal total_price
-        int lead_time_days
-    }
-
     purchase_orders {
         uuid id PK
         string po_number UK
-        uuid rfq_id FK
         uuid quotation_id FK
         uuid vendor_id FK
-        uuid buyer_id FK
-        decimal total_amount
-        decimal tax_amount
         decimal grand_total
-        string currency
-        string payment_terms
-        date delivery_date
         string status
-        string shipping_address
-        timestamp issued_at
-        timestamp acknowledged_at
-        boolean is_deleted
-        timestamp created_at
-    }
-
-    po_items {
-        uuid id PK
-        uuid po_id FK
-        uuid quotation_item_id FK
-        string item_description
-        decimal quantity
-        string uom
-        decimal unit_price
-        decimal total_price
-    }
-
-    po_approvals {
-        uuid id PK
-        uuid po_id FK
-        uuid approver_id FK
-        int approval_level
-        string status
-        text comments
-        timestamp decided_at
     }
 ```
 
-### 4.2 Status Enums
+### 4.2 Alur Data & Logika Bisnis
 
-**PR Status:** `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`, `CANCELLED`, `CONVERTED`
+#### 1. Permintaan Pembelian (`purchase_requisitions`)
+Setiap proses dimulai di sini. Tabel ini mencatat "apa yang dibutuhkan".
+*   `status`: Mengontrol siklus hidup PR (`DRAFT` > `PENDING_APPROVAL` > `APPROVED` > `CONVERTED`).
+*   **Relasi Approval:** Tabel `pr_approvals` menyimpan riwayat persetujuan. Jika PR bernilai tinggi, mungkin memerlukan multiple rows di tabel ini (Level 1: Manager, Level 2: Direktur).
 
-**RFQ Status:** `DRAFT`, `PUBLISHED`, `CLOSED`, `EVALUATING`, `AWARDED`, `CANCELLED`
+#### 2. Tender / RFQ (`rfqs`)
+Setelah PR disetujui, ia dikonversi menjadi RFQ untuk dicarikan vendornya.
+*   `bidding_type`: Menentukan mekanisme tender. `OPEN` berarti semua vendor terdaftar bisa melihat, `INVITATION` berarti hanya vendor di tabel `rfq_vendors` yang bisa akses.
+*   `is_anonymous`: Jika `true`, nama vendor disembunyikan selama proses bidding (blind bidding) untuk mencegah kolusi.
 
-**PO Status:** `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `ISSUED`, `ACKNOWLEDGED`, `PARTIALLY_RECEIVED`, `FULLY_RECEIVED`, `INVOICED`, `CLOSED`, `CANCELLED`
+#### 3. Penawaran Vendor (`quotations`)
+Jawaban vendor atas RFQ.
+*   Satu RFQ bisa memiliki banyak Quotation.
+*   User akan melakukan evaluasi dan memilih satu Quotation sebagai pemenang (`status: AWARDED`).
+
+#### 4. Pesanan Pembelian (`purchase_orders`)
+Kontrak legal yang dikirim ke pemenang.
+*   Data di tabel ini adalah "snapshot" final dari kesepakatan harga dan barang. Tidak boleh berubah setelah status `ISSUED`.
 
 ---
 
-## 5. Vendor Service Schema
+## 5. Layanan Vendor (Vendor Service)
 
-### 5.1 ERD
+Mengelola "Database Rekanan". Fokus pada integritas data supplier dan kepatuhan (compliance).
+
+### 5.1 Peta Hubungan Entitas (ERD)
 
 ```mermaid
 erDiagram
-    vendors ||--o{ vendor_documents : uploads
-    vendors ||--o{ vendor_bank_accounts : has
-    vendors ||--o{ vendor_contacts : has
-    vendors ||--o{ vendor_categories : belongs_to
-    vendors ||--o{ vendor_scorecards : rated
-    categories ||--o{ vendor_categories : contains
+    vendors ||--o{ vendor_documents : upload
+    vendors ||--o{ vendor_bank_accounts : memiliki
+    vendors ||--o{ vendor_scorecards : dinilai
 
     vendors {
         uuid id PK
-        uuid user_id FK,UK
         string vendor_code UK
         string company_name
         string tax_id UK
-        string business_type
-        string address
-        string city
-        string country
-        string phone
-        string email
-        string website
         string status
-        date registered_at
-        date verified_at
-        uuid verified_by FK
         boolean is_blacklisted
-        string blacklist_reason
-        boolean is_deleted
-        timestamp created_at
-        timestamp updated_at
     }
-
     vendor_documents {
         uuid id PK
         uuid vendor_id FK
         string document_type
-        string file_name
-        string file_path
         date expiry_date
         string verification_status
-        uuid verified_by FK
-        timestamp uploaded_at
     }
-
-    vendor_bank_accounts {
-        uuid id PK
-        uuid vendor_id FK
-        string bank_name
-        string bank_code
-        string account_number
-        string account_name
-        string swift_code
-        boolean is_primary
-        string verification_status
-        timestamp created_at
-    }
-
-    vendor_contacts {
-        uuid id PK
-        uuid vendor_id FK
-        string contact_name
-        string position
-        string phone
-        string email
-        boolean is_primary
-    }
-
-    categories {
-        uuid id PK
-        string code UK
-        string name
-        uuid parent_id FK
-        boolean is_active
-    }
-
-    vendor_categories {
-        uuid id PK
-        uuid vendor_id FK
-        uuid category_id FK
-    }
-
     vendor_scorecards {
         uuid id PK
         uuid vendor_id FK
         uuid po_id FK
-        int quality_score
-        int delivery_score
-        int responsiveness_score
         int overall_score
         text comments
-        uuid rated_by FK
-        timestamp rated_at
     }
 ```
 
-### 5.2 Status Enums
+### 5.2 Penjelasan Mendetail Entitas
 
-**Vendor Status:** `PENDING_REGISTRATION`, `PENDING_VERIFICATION`, `ACTIVE`, `SUSPENDED`, `BLACKLISTED`, `INACTIVE`
+#### Tabel `vendors`
+Menyimpan profil perusahaan rekanan.
+*   `is_blacklisted`: Flag kritis. Jika `true`, sistem Procurement akan otomatis memblokir vendor ini dari RFQ/PO baru.
+*   `status`: `PENDING_VERIFICATION` berarti vendor baru daftar dan belum diverifikasi tim internal.
 
-**Document Status:** `PENDING`, `VERIFIED`, `REJECTED`, `EXPIRED`
+#### Tabel `vendor_documents`
+Menyimpan link ke file legalitas (SIUP, NPWP, TDP).
+*   `expiry_date`: Digunakan oleh job scheduler untuk mengirim notifikasi jika dokumen vendor mendekati kadaluarsa.
+*   `verification_status`: Setiap dokumen harus ditinjau manual (`VERIFIED`) sebelum vendor menjadi `ACTIVE`.
+
+#### Tabel `vendor_scorecards`
+Sistem penilaian kinerja vendor berbasis transaksi. Setiap kali PO selesai, user internal mengisi scorecard ini. Nilai rata-rata dari tabel ini menentukan rating vendor.
 
 ---
 
-## 6. Finance Service Schema
+## 6. Layanan Keuangan (Finance Service)
 
-### 6.1 ERD
+Menangani aspek moneter: Tagihan masuk dan Pembayaran keluar.
 
+### 6.1 Peta Hubungan Entitas (ERD)
 ```mermaid
 erDiagram
-    invoices ||--o{ invoice_items : contains
-    invoices ||--o{ invoice_matches : matched_with
-    invoices ||--o{ payments : paid_by
-    payment_batches ||--o{ payments : contains
-    budget_allocations ||--o{ budget_transactions : tracks
-    gl_accounts ||--o{ gl_postings : posted_to
+    invoices ||--o{ invoice_matches : dicocokkan
+    invoices ||--o{ payments : dibayar
+    budget_allocations ||--o{ budget_transactions : transaksi
 
     invoices {
         uuid id PK
-        string invoice_number UK
-        uuid vendor_id FK
+        string invoice_number
         uuid po_id FK
-        string tax_invoice_number
-        date invoice_date
-        date due_date
-        decimal subtotal
-        decimal tax_amount
-        decimal withholding_tax
         decimal total_amount
-        decimal paid_amount
-        string currency
         string status
-        string file_path
-        uuid submitted_by FK
-        uuid verified_by FK
-        timestamp submitted_at
-        timestamp verified_at
-        boolean is_deleted
-        timestamp created_at
     }
-
-    invoice_items {
-        uuid id PK
-        uuid invoice_id FK
-        uuid po_item_id FK
-        string item_description
-        decimal quantity
-        decimal unit_price
-        decimal total_price
-    }
-
     invoice_matches {
         uuid id PK
         uuid invoice_id FK
-        uuid po_id FK
         uuid grn_id FK
         string match_status
-        text discrepancy_notes
-        timestamp matched_at
     }
-
-    payments {
-        uuid id PK
-        string payment_number UK
-        uuid invoice_id FK
-        uuid batch_id FK
-        decimal amount
-        string currency
-        string payment_method
-        string bank_reference
-        date payment_date
-        date scheduled_date
-        string status
-        text notes
-        uuid created_by FK
-        uuid approved_by FK
-        timestamp created_at
-        timestamp executed_at
-    }
-
-    payment_batches {
-        uuid id PK
-        string batch_number UK
-        date execution_date
-        int invoice_count
-        decimal total_amount
-        string status
-        uuid created_by FK
-        timestamp created_at
-    }
-
     budget_allocations {
         uuid id PK
-        uuid cost_center_id FK
-        string fiscal_year
-        string budget_type
+        uuid cost_center_id
         decimal allocated_amount
-        decimal utilized_amount
-        decimal locked_amount
         decimal available_amount
-        string status
-        timestamp created_at
     }
-
     budget_transactions {
         uuid id PK
         uuid budget_id FK
-        uuid reference_id FK
-        string reference_type
         string transaction_type
         decimal amount
-        decimal balance_after
-        text description
-        timestamp created_at
-    }
-
-    gl_accounts {
-        uuid id PK
-        string account_code UK
-        string account_name
-        string account_type
-        uuid parent_id FK
-        boolean is_active
-    }
-
-    gl_postings {
-        uuid id PK
-        uuid gl_account_id FK
-        uuid reference_id FK
-        string reference_type
-        date posting_date
-        decimal debit_amount
-        decimal credit_amount
-        string description
-        string fiscal_period
-        uuid posted_by FK
-        timestamp created_at
     }
 ```
 
-### 6.2 Status Enums
+### 6.2 Logika Bisnis Kunci
 
-**Invoice Status:** `RECEIVED`, `PENDING_MATCH`, `VERIFIED`, `DISPUTED`, `APPROVED`, `SCHEDULED`, `PARTIALLY_PAID`, `PAID`, `CANCELLED`
+#### Mekanisme 3-Way Matching (`invoice_matches`)
+Ini adalah fitur keamanan finansial utama. Tabel `invoice_matches` menghubungkan tiga dokumen:
+1.  **PO** (Apa yang kita pesan?)
+2.  **GRN/Goods Receipt** (Apa yang kita terima? - *Data dari Inventory Service*)
+3.  **Invoice** (Apa yang ditagihkan vendor?)
 
-**Payment Status:** `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `SCHEDULED`, `PROCESSING`, `PAID`, `FAILED`, `VOIDED`
+Jika ketiga data (Jumlah & Harga) cocok dalam toleransi tertentu, status menjadi `MATCHED` dan pembayaran bisa dijadwalkan. Jika tidak, status `DISCREPANCY` dan butuh review manual.
 
-**Budget Transaction Type:** `ALLOCATION`, `LOCK`, `RELEASE`, `UTILIZATION`, `ADJUSTMENT`
-
----
-
-## 7. Inventory Service Schema
-
-### 7.1 ERD
-
-```mermaid
-erDiagram
-    warehouses ||--o{ stocks : stores
-    items ||--o{ stocks : tracked_in
-    stocks ||--o{ stock_movements : moves
-    goods_receipts ||--o{ grn_items : contains
-
-    warehouses {
-        uuid id PK
-        string code UK
-        string name
-        string address
-        string type
-        boolean is_active
-        timestamp created_at
-    }
-
-    items {
-        uuid id PK
-        string sku UK
-        string name
-        string description
-        string category
-        string uom
-        decimal min_stock_level
-        boolean is_active
-        timestamp created_at
-    }
-
-    stocks {
-        uuid id PK
-        uuid warehouse_id FK
-        uuid item_id FK
-        string sku
-        decimal quantity
-        decimal reserved_quantity
-        decimal available_quantity
-        decimal min_threshold
-        timestamp last_updated
-    }
-
-    stock_movements {
-        uuid id PK
-        uuid stock_id FK
-        string movement_type
-        uuid reference_id FK
-        string reference_type
-        decimal quantity
-        decimal balance_after
-        text notes
-        uuid created_by FK
-        timestamp created_at
-    }
-
-    goods_receipts {
-        uuid id PK
-        string grn_number UK
-        uuid po_id FK
-        uuid warehouse_id FK
-        date receipt_date
-        string status
-        text notes
-        uuid received_by FK
-        timestamp created_at
-    }
-
-    grn_items {
-        uuid id PK
-        uuid grn_id FK
-        uuid po_item_id FK
-        uuid item_id FK
-        decimal ordered_quantity
-        decimal received_quantity
-        decimal accepted_quantity
-        decimal rejected_quantity
-        string rejection_reason
-        string condition
-    }
-```
-
-### 7.2 Movement Types
-
-`RECEIPT`, `ISSUE`, `TRANSFER`, `ADJUSTMENT`, `RETURN`, `RESERVATION`, `RELEASE`
+#### Kontrol Anggaran (`budget_allocations`)
+Mengelola plafon anggaran per departemen.
+*   `locked_amount`: Saat PR disetujui, dana tidak langsung berkurang, tapi "dikunci" agar tidak dipakai PR lain.
+*   `utilized_amount`: Saat PO rilis, dana diubah dari "terkunci" menjadi "terpakai".
 
 ---
 
-## 8. Cross-Service References
+## 7. Layanan Inventaris (Inventory Service)
 
-### 8.1 Foreign Key Strategy
+Bertugas mencatat fisik barang.
 
-Since we use Database-per-Service, cross-service references are stored as UUIDs but **NOT enforced** as FK constraints.
+### 7.1 Penjelasan Mendetail Entitas
 
-| Source Table | Column | References (Logical) |
-|:---|:---|:---|
-| `purchase_requisitions.requester_id` | → | `users.id` (Auth Service) |
-| `purchase_orders.vendor_id` | → | `vendors.id` (Vendor Service) |
-| `invoices.po_id` | → | `purchase_orders.id` (Procurement) |
-| `invoice_matches.grn_id` | → | `goods_receipts.id` (Inventory) |
+#### Tabel `stocks`
+Menyimpan saldo barang per gudang.
+*   `reserved_quantity`: Stok yang sudah dipesan untuk Project tertentu tapi belum dikeluarkan fisik.
+*   `available_quantity`: `quantity` fisik dikurangi `reserved`.
 
-### 8.2 Data Consistency
+#### Tabel `stock_movements`
+Ini adalah **Ledger Inventaris**. Tabel `stocks` hanya menyimpan saldo akhir, sedangkan `stock_movements` menyimpan *history perubahannya*.
+*   Setiap kali barang masuk/keluar, satu baris harus ditambahkan ke tabel ini.
+*   Memungkinkan audit: "Kenapa stok barang X berkurang 5 pcs pada tanggal Y?" -> Cek tabel ini.
 
-Cross-service consistency is maintained via:
-1.  **Event-Driven Updates:** Kafka events propagate state changes.
-2.  **Eventual Consistency:** Read models may lag slightly.
-3.  **Saga Pattern:** For distributed transactions.
-
----
-
-## 9. Indexing Strategy
-
-### 9.1 Common Indexes
-
-| Table | Index | Columns | Type |
-|:---|:---|:---|:---|
-| `users` | `idx_users_email` | `email` | Unique |
-| `purchase_orders` | `idx_po_status` | `status` | B-tree |
-| `purchase_orders` | `idx_po_vendor` | `vendor_id` | B-tree |
-| `invoices` | `idx_inv_status_due` | `status`, `due_date` | B-tree |
-| `stocks` | `idx_stock_warehouse_item` | `warehouse_id`, `item_id` | Unique |
-
-### 9.2 Audit Columns
-
-All tables include:
-- `created_at TIMESTAMP DEFAULT NOW()`
-- `updated_at TIMESTAMP` (updated via trigger)
-- `is_deleted BOOLEAN DEFAULT FALSE`
+#### Tabel `goods_receipts` (GRN)
+Bukti penerimaan barang dari vendor.
+*   Dokumen ini yang menjadi dasar bagi Finance Service untuk mengakui utang (Account Payable).
 
 ---
 
-## 10. Notification Service Schema
+## 8. Layanan Audit (Audit Service) & Notifikasi
 
-### 10.1 ERD
+### Tabel `audit_logs`
+Tabel ini bertindak sebagai "Kotak hitam" sistem. Semua aktivitas create/update/delete yang krusial di seluruh service akan mengirim event yang disimpan di sini.
+*   `old_value` vs `new_value`: Menyimpan snapshot data sebelum dan sesudah perubahan untuk pelacakan forensik.
 
-```mermaid
-erDiagram
-    notification_templates ||--o{ notifications : uses
-    notifications ||--o{ notification_logs : tracks
-
-    notification_templates {
-        uuid id PK
-        string code UK
-        string name
-        string channel
-        string subject_template
-        text body_template
-        boolean is_active
-        timestamp created_at
-    }
-
-    notifications {
-        uuid id PK
-        uuid template_id FK
-        uuid recipient_id FK
-        string recipient_email
-        string recipient_phone
-        string channel
-        string subject
-        text body
-        string status
-        string event_type
-        uuid reference_id
-        string reference_type
-        int retry_count
-        timestamp scheduled_at
-        timestamp sent_at
-        timestamp created_at
-    }
-
-    notification_logs {
-        uuid id PK
-        uuid notification_id FK
-        string status
-        text error_message
-        string provider_response
-        timestamp attempted_at
-    }
-
-    notification_preferences {
-        uuid id PK
-        uuid user_id FK,UK
-        boolean email_enabled
-        boolean sms_enabled
-        boolean push_enabled
-        jsonb event_subscriptions
-        timestamp updated_at
-    }
-```
-
-### 10.2 Status Enums
-
-**Notification Status:** `PENDING`, `QUEUED`, `SENDING`, `SENT`, `FAILED`, `CANCELLED`
-
-**Channel:** `EMAIL`, `SMS`, `PUSH`, `IN_APP`
-
----
-
-## 11. Audit Service Schema
-
-### 11.1 ERD
-
-```mermaid
-erDiagram
-    audit_logs ||--o{ audit_log_details : contains
-
-    audit_logs {
-        uuid id PK
-        string event_id UK
-        string event_type
-        string action
-        uuid actor_id
-        string actor_email
-        string actor_role
-        string ip_address
-        string user_agent
-        string service_name
-        uuid resource_id
-        string resource_type
-        string status
-        timestamp event_time
-        string correlation_id
-    }
-
-    audit_log_details {
-        uuid id PK
-        uuid audit_log_id FK
-        string field_name
-        text old_value
-        text new_value
-    }
-
-    audit_retention_policies {
-        uuid id PK
-        string event_type
-        int retention_days
-        boolean is_active
-        timestamp created_at
-    }
-
-    security_events {
-        uuid id PK
-        string event_type
-        string severity
-        uuid user_id
-        string ip_address
-        text description
-        jsonb metadata
-        boolean is_resolved
-        uuid resolved_by FK
-        timestamp resolved_at
-        timestamp created_at
-    }
-```
-
-### 11.2 Event Types
-
-**Action Types:** `CREATE`, `READ`, `UPDATE`, `DELETE`, `APPROVE`, `REJECT`, `LOGIN`, `LOGOUT`, `EXPORT`
-
-**Security Event Types:** `FAILED_LOGIN`, `BRUTE_FORCE`, `UNAUTHORIZED_ACCESS`, `DATA_EXPORT`, `ROLE_CHANGE`, `PASSWORD_RESET`
-
-**Severity:** `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
-
----
-
-## 12. Document Service Schema
-
-### 12.1 ERD
-
-```mermaid
-erDiagram
-    documents ||--o{ document_versions : has
-    documents ||--o{ document_access_logs : tracks
-    folders ||--o{ documents : contains
-
-    folders {
-        uuid id PK
-        string name
-        uuid parent_id FK
-        uuid owner_id FK
-        string path
-        boolean is_system
-        timestamp created_at
-    }
-
-    documents {
-        uuid id PK
-        uuid folder_id FK
-        string document_number UK
-        string original_filename
-        string stored_filename
-        string file_path
-        string content_type
-        bigint file_size
-        string checksum
-        uuid uploaded_by FK
-        uuid reference_id
-        string reference_type
-        string category
-        string status
-        boolean is_public
-        boolean is_deleted
-        timestamp uploaded_at
-        timestamp deleted_at
-    }
-
-    document_versions {
-        uuid id PK
-        uuid document_id FK
-        int version_number
-        string file_path
-        bigint file_size
-        string checksum
-        uuid uploaded_by FK
-        text change_notes
-        timestamp created_at
-    }
-
-    document_access_logs {
-        uuid id PK
-        uuid document_id FK
-        uuid user_id FK
-        string action
-        string ip_address
-        timestamp accessed_at
-    }
-
-    document_shares {
-        uuid id PK
-        uuid document_id FK
-        uuid shared_with_user_id FK
-        string permission
-        timestamp expires_at
-        uuid shared_by FK
-        timestamp created_at
-    }
-```
-
-### 12.2 Status & Enums
-
-**Document Status:** `ACTIVE`, `ARCHIVED`, `PENDING_SCAN`, `INFECTED`, `DELETED`
-
-**Category:** `PR_ATTACHMENT`, `VENDOR_KYC`, `INVOICE`, `CONTRACT`, `REPORT`, `OTHER`
-
-**Access Action:** `VIEW`, `DOWNLOAD`, `PRINT`, `SHARE`
-
-**Share Permission:** `VIEW`, `DOWNLOAD`, `EDIT`
+### Tabel `notifications`
+Menyimpan antrian pengiriman pesan.
+*   Memisahkan logika aplikasi (misal: "PR Approved") dari logika pengiriman teknis (misal: "Kirim email SMTP"). Jika SMTP error, aplikasi utama tidak terganggu, dan tabel ini mencatat status `FAILED` untuk dicoba ulang (retry).
