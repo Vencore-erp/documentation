@@ -85,70 +85,60 @@ graph TB
 Diagram paket berikut menggambarkan struktur modular internal dari sistem *Monorepo* atau *Multi-repo* microservices. Setiap layanan memiliki struktur layer yang seragam (Controller, Service, Repository) sesuai dengan standar *Clean Architecture* atau *Layered Architecture* pada Spring Boot.
 
 ```mermaid
-classDiagram
-    namespace Frontend_Application {
-        class NextJS_App {
-            +Pages
-            +Components
-            +Hooks
-            +Utils
-        }
-    }
+graph TB
+    subgraph Frontend_Package [Frontend Application]
+        direction TB
+        NextJS([NextJS App])
+        subgraph FE_Components [Components]
+            Pages
+            Hooks
+            Utils
+        end
+        NextJS --- FE_Components
+    end
 
-    namespace API_Gateway_Layer {
-        class Spring_Cloud_Gateway {
-            +RouteLocator
-            +GlobalFilter
-            +JwtAuthenticationFilter
-        }
-    }
+    subgraph Gateway_Package [API Gateway Layer]
+        direction TB
+        SCG([Spring Cloud Gateway])
+        subgraph GW_Components [Gateway Modules]
+            RouteLocator
+            GlobalFilter
+            JwtAuthFilter
+        end
+        SCG --- GW_Components
+    end
 
-    namespace Core_Business_Services {
-        class Auth_Service {
-            +AuthController
-            +AuthService
-            +UserRepository
-            +UserEntity
-            +AuthDTO
-        }
-        class Procurement_Service {
-            +PRController
-            +RFQController
-            +POController
-            +ProcurementService
-            +WorkflowEngine
-        }
-        class Vendor_Service {
-            +VendorController
-            +VendorService
-            +VendorRepository
-            +ScorecardService
-        }
-        class Finance_Service {
-            +InvoiceController
-            +PaymentController
-            +FinanceService
-            +TaxCalculator
-        }
-    }
+    subgraph Core_Package [Core Business Services]
+        direction TB
+        Auth([Auth Service])
+        Proc([Procurement Service])
+        Vend([Vendor Service])
+        Fin([Finance Service])
+    end
 
-    namespace Shared_Libraries {
-        class Common_Lib {
-            +GlobalExceptionHandler
-            +BaseEntity
-            +ApiResponse
-            +KafkaProducer
-            +AuditLogger
-        }
-    }
+    subgraph Shared_Package [Shared Libraries]
+        direction TB
+        Common([Common Lib])
+        subgraph Lib_Components [Library Modules]
+            GlobalExceptionHandler
+            BaseEntity
+            ApiResponse
+            KafkaProducer
+        end
+        Common --- Lib_Components
+    end
 
-    NextJS_App ..> Spring_Cloud_Gateway : HTTP/REST
-    Spring_Cloud_Gateway ..> Core_Business_Services : Proxies Requests
-    Core_Business_Services ..> Common_Lib : Imports
-    Auth_Service --|> Common_Lib
-    Procurement_Service --|> Common_Lib
-    Vendor_Service --|> Common_Lib
-    Finance_Service --|> Common_Lib
+    %% Relationships
+    NextJS -.->|HTTP/REST| SCG
+    SCG -.->|Proxy| Auth
+    SCG -.->|Proxy| Proc
+    SCG -.->|Proxy| Vend
+    SCG -.->|Proxy| Fin
+
+    Auth --> Common
+    Proc --> Common
+    Vend --> Common
+    Fin --> Common
 ```
 
 Struktur paket di atas menunjukkan bahwa setiap microservice (Auth, Procurement, Vendor, Finance) berdiri sendiri namun berbagi pustaka umum (`Common Lib`) untuk menangani hal-hal standar seperti format respons API (`ApiResponse`), penanganan error global (`GlobalExceptionHandler`), dan utilitas logging audit.
