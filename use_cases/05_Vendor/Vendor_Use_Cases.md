@@ -448,8 +448,46 @@
 
 ### UC-VEN-018 - UC-VEN-020 (Katalog & Utilitas)
 
+## BAGIAN E: Manajemen Katalog
+
+### UC-VEN-018 Update Item Katalog
+
+| Atribut | Detail |
+|:---|:---|
+| **ID & Nama** | UC-VEN-018 Update Item Katalog |
+| **Aktor** | Vendor |
+| **Deskripsi** | Menambah, mengubah, atau menonaktifkan item dalam katalog produk vendor yang dapat dilihat oleh Buyer. |
+| **Pre-kondisi** | Akun Aktif |
+| **Post-kondisi** | Katalog Updated |
+
+**Alur Utama:**
+1. Vendor buka menu **Catalog Management**.
+2. Vendor lihat list item saat ini.
+3. Vendor klik "Add New Item".
+4. Vendor input detail:
+    *   **Nama Item** (mis: Laptop XYZ)
+    *   **SKU Vendor** (mis: V-LAP-001)
+    *   **Harga Satuan**
+    *   **Deskripsi & Spesifikasi**
+    *   **Foto Produk**
+5. Vendor klik "Publish".
+6. Sistem validasi input.
+7. Item muncul di pencarian Internal Buyer.
+
+**Alur Alternatif:**
+* *Bulk Upload:* Vendor download Template Excel, isi data banyak item, lalu Upload kembali.
+* *Update Price:* Vendor edit item yang sudah ada, ubah harga. Sistem update "Last Updated Date".
+
+**Alur Exception:**
+* *Duplicate SKU:* Sistem tolak jika SKU sudah ada di akun vendor tersebut.
+
+---
+
+## BAGIAN F: Utilitas Lainnya
+
+### UC-VEN-019 - UC-VEN-020
+
 | ID | Nama | Deskripsi |
 |:---|:---|:---|
-| UC-VEN-018 | Update Item Katalog | Maintain katalog item dan harga |
 | UC-VEN-019 | Chat dengan Buyer | Channel komunikasi ter-audit |
 | UC-VEN-020 | Download PO PDF | Retrieve dokumen PO resmi |
