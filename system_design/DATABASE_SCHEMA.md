@@ -122,7 +122,7 @@ erDiagram
 
     user_profiles {
         uuid id PK
-        uuid user_id FK UK
+        uuid user_id FK,UK
         string employee_id UK
         string first_name
         string last_name
@@ -345,7 +345,7 @@ erDiagram
 
     vendors {
         uuid id PK
-        uuid user_id FK UK
+        uuid user_id FK,UK
         string vendor_code UK
         string company_name
         string tax_id UK
@@ -767,7 +767,7 @@ erDiagram
 
     notification_preferences {
         uuid id PK
-        uuid user_id FK UK
+        uuid user_id FK,UK
         boolean email_enabled
         boolean sms_enabled
         boolean push_enabled
