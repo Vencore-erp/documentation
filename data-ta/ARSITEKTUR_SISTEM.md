@@ -1,4 +1,13 @@
-# Penjelasan Arsitektur Sistem
+# 4.6.2 Perancangan Arsitektur
+
+## 4.6.2.1 Tinjauan Umum Arsitektur
+
+Arsitektur sistem e-Procurement ini dirancang menggunakan pendekatan *Microservices* yang terdistribusi, memungkinkan skalabilitas tinggi dan pemisahan tanggung jawab yang jelas antar modul. Sistem terdiri dari tiga lapisan utama:
+1.  **Frontend Layer**: Antarmuka pengguna yang terbagi menjadi Web Portal, Vendor Portal, dan Mobile App.
+2.  **API Gateway**: Gerbang tunggal yang menangani autentikasi, load balancing, dan *routing*.
+3.  **Backend Services**: Kumpulan layanan mikro (Auth, User, Procurement, Vendor, Finance) yang berkomunikasi secara *asynchronous* melalui Event Bus (Kafka).
+
+Berikut adalah gambaran visual arsitektur sistem secara keseluruhan:
 
 ```mermaid
 graph TB
@@ -69,11 +78,232 @@ graph TB
     AUDIT --> ES
 ```
 
-**Lapisan Presentasi dan Gerbang API (Frontend & Gateway)**
-Sistem ini dirancang menggunakan arsitektur *microservices* yang modern dan terdistribusi. Pada lapisan presentasi (*User Interface*), terdapat pemisahan yang jelas antara **Web Portal** untuk pengguna internal, **Vendor Portal** untuk rekanan, dan **Mobile App** untuk akses on-the-go, di mana semuanya dibangun menggunakan teknologi terkini seperti Next.js 14 dan React Native. Seluruh akses dari klien-klien ini tidak langsung menyentuh layanan backend, melainkan melalui **API Gateway** (Spring Cloud Gateway) yang berfungsi sebagai pintu gerbang tunggal. Gateway ini bertugas menangani keamanan terpusat (JWT Authentication), pembatasan akses (*rate limiting*), dan penyeimbangan beban (*load balancing*) untuk memastikan keamanan dan stabilitas sistem sebelum permintaan diteruskan ke layanan di belakangnya.
+---
 
-**Layanan Inti dan Komunikasi <i>Event-Driven</i>**
-Logika bisnis utama dipecah menjadi beberapa **Core Services** independen berbasis Spring Boot, meliputi layanan Autentikasi, User/Role, Pengadaan (Procurement), Vendor, dan Keuangan. Untuk menjaga performa dan independensi antar-layanan (*decoupling*), sistem menerapkan pola komunikasi *asynchronous* menggunakan **Apache Kafka** sebagai *Event Bus*. Ketika terjadi transaksi penting (seperti 'PR Disetujui' atau 'Invoice Masuk'), layanan inti akan mempublikasikan *event* ke Kafka. Layanan pendukung (*Supporting Services*) seperti Notifikasi, Audit, dan Pelaporan kemudian akan mengonsumsi *event* tersebut secara terpisah. Hal ini memastikan proses berat seperti pengiriman email atau pencatatan log audit tidak memperlambat respon transaksi utama pengguna.
+## 4.6.2.2 Arsitektur Perangkat Lunak (Package Diagram)
 
-**Strategi Penyimpanan Data (Data Persistence)**
-Untuk pengelolaan data, sistem menerapkan strategi *polyglot persistence* yang memilih teknologi penyimpanan terbaik sesuai kebutuhan kasus penggunaan. **PostgreSQL** digunakan sebagai database relasional utama untuk menjamin integritas data transaksional pada setiap *microservice*. Sistem juga memanfaatkan **Redis** sebagai lapisan *caching* berkecepatan tinggi untuk mengurangi beban database, **MinIO** sebagai *Object Storage* yang aman untuk penyimpanan dokumen fisik (seperti file kontrak atau faktur), serta **Elasticsearch** untuk kebutuhan pencarian teks cepat dan agregasi log audit. Kombinasi infrastruktur ini menciptakan ekosistem penyimpanan yang skalabel, andal, dan efisien.
+Diagram paket berikut menggambarkan struktur modular internal dari sistem *Monorepo* atau *Multi-repo* microservices. Setiap layanan memiliki struktur layer yang seragam (Controller, Service, Repository) sesuai dengan standar *Clean Architecture* atau *Layered Architecture* pada Spring Boot.
+
+```mermaid
+classDiagram
+    namespace Frontend_Application {
+        class NextJS_App {
+            +Pages
+            +Components
+            +Hooks
+            +Utils
+        }
+    }
+
+    namespace API_Gateway_Layer {
+        class Spring_Cloud_Gateway {
+            +RouteLocator
+            +GlobalFilter
+            +JwtAuthenticationFilter
+        }
+    }
+
+    namespace Core_Business_Services {
+        class Auth_Service {
+            +AuthController
+            +AuthService
+            +UserRepository
+            +UserEntity
+            +AuthDTO
+        }
+        class Procurement_Service {
+            +PRController
+            +RFQController
+            +POController
+            +ProcurementService
+            +WorkflowEngine
+        }
+        class Vendor_Service {
+            +VendorController
+            +VendorService
+            +VendorRepository
+            +ScorecardService
+        }
+        class Finance_Service {
+            +InvoiceController
+            +PaymentController
+            +FinanceService
+            +TaxCalculator
+        }
+    }
+
+    namespace Shared_Libraries {
+        class Common_Lib {
+            +GlobalExceptionHandler
+            +BaseEntity
+            +ApiResponse
+            +KafkaProducer
+            +AuditLogger
+        }
+    }
+
+    NextJS_App ..> Spring_Cloud_Gateway : HTTP/REST
+    Spring_Cloud_Gateway ..> Core_Business_Services : Proxies Requests
+    Core_Business_Services ..> Common_Lib : Imports
+    Auth_Service --|> Common_Lib
+    Procurement_Service --|> Common_Lib
+    Vendor_Service --|> Common_Lib
+    Finance_Service --|> Common_Lib
+```
+
+Struktur paket di atas menunjukkan bahwa setiap microservice (Auth, Procurement, Vendor, Finance) berdiri sendiri namun berbagi pustaka umum (`Common Lib`) untuk menangani hal-hal standar seperti format respons API (`ApiResponse`), penanganan error global (`GlobalExceptionHandler`), dan utilitas logging audit.
+
+---
+
+## 4.6.2.3 Class Diagram
+
+Berikut adalah rancangan detail kelas (Class Diagram) untuk setiap layanan utama, yang menggambarkan atribut data dan operasi (metode) yang dimiliki oleh setiap entitas bisnis.
+
+### 1. Auth Service & User Management
+```mermaid
+classDiagram
+    class User {
+        -UUID id
+        -String username
+        -String email
+        -String passwordHash
+        -Boolean isActive
+        -Boolean isMfaEnabled
+        +login()
+        +logout()
+    }
+    class Role {
+        -UUID id
+        -String name
+        -Boolean isSystemRole
+    }
+    class Permission {
+        -UUID id
+        -String code
+    }
+    class UserRole {
+        -UUID userId
+        -UUID roleId
+    }
+    class UserProfile {
+        -UUID userId
+        -String employeeId
+        -String fullName
+        -UUID departmentId
+        -UUID managerId
+    }
+    class Department {
+        -UUID id
+        -String name
+        -UUID parentId
+    }
+
+    User "1" --> "*" UserRole
+    Role "1" --> "*" UserRole
+    Role "1" --> "*" Permission
+    UserProfile "1" -- "1" User : extends
+    Department "1" --> "*" UserProfile : employs
+```
+
+### 2. Procurement Service (Core)
+```mermaid
+classDiagram
+    class PurchaseRequisition {
+        -UUID id
+        -String prNumber
+        -UUID requesterId
+        -BigDecimal totalAmount
+        -String status
+        +submit()
+        +approve()
+    }
+    class PRItem {
+        -UUID prId
+        -String description
+        -BigDecimal quantity
+        -BigDecimal unitPrice
+    }
+    class RFQ {
+        -UUID id
+        -UUID prId
+        -String rfqNumber
+        -LocalDateTime closeDate
+        -String status
+        +publish()
+        +award()
+    }
+    class Quotation {
+        -UUID id
+        -UUID rfqId
+        -UUID vendorId
+        -BigDecimal totalAmount
+        +submit()
+    }
+    class PurchaseOrder {
+        -UUID id
+        -String poNumber
+        -UUID quotationId
+        -String status
+        +issue()
+    }
+
+    PurchaseRequisition "1" --> "*" PRItem : contains
+    PurchaseRequisition "1" --> "1" RFQ : generates
+    RFQ "1" --> "*" Quotation : receives
+    Quotation "1" --> "0..1" PurchaseOrder : wins
+```
+
+### 3. Vendor Service
+```mermaid
+classDiagram
+    class Vendor {
+        -UUID id
+        -String companyName
+        -String taxId
+        -String status
+        -Boolean isBlacklisted
+        +register()
+        +verify()
+    }
+    class VendorDocument {
+        -UUID vendorId
+        -String type
+        -LocalDate expiryDate
+    }
+    class VendorScorecard {
+        -UUID vendorId
+        -Integer overallScore
+    }
+
+    Vendor "1" --> "*" VendorDocument : uploads
+    Vendor "1" --> "*" VendorScorecard : has
+```
+
+### 4. Finance Service
+```mermaid
+classDiagram
+    class Invoice {
+        -UUID id
+        -UUID poId
+        -BigDecimal amount
+        -String status
+        +submit()
+        +match3Way()
+    }
+    class Payment {
+        -UUID invoiceId
+        -BigDecimal amount
+        -LocalDate paymentDate
+        -String status
+        +execute()
+    }
+    class BudgetAllocation {
+        -UUID costCenterId
+        -BigDecimal totalBudget
+        -BigDecimal utilized
+        +checkAvailability()
+        +lockFunds()
+    }
+
+    Invoice "1" --> "1" Payment : triggers
+```
