@@ -1,148 +1,149 @@
 # Daftar Halaman Frontend (Frontend Mock)
 
 Dokumen ini berisi daftar lengkap endpoint halaman yang tersedia di aplikasi `frontend-mock`.
+**Base URL:** `https://frontend-tugas-akhir.vercel.app`
 Total Halaman: 97+
 
 ## 1. Authentication & Public
-- `/` (Landing Page)
-- `/login`
-- `/auth/2fa`
-- `/auth/register/vendor`
-- `/auth/reset-password/[token]`
-- `/forgot-password`
+- https://frontend-tugas-akhir.vercel.app/ (Landing Page)
+- https://frontend-tugas-akhir.vercel.app/login
+- https://frontend-tugas-akhir.vercel.app/auth/2fa
+- https://frontend-tugas-akhir.vercel.app/auth/register/vendor
+- https://frontend-tugas-akhir.vercel.app/auth/reset-password/[token]
+- https://frontend-tugas-akhir.vercel.app/forgot-password
 
 ## 2. Dashboard
-- `/dashboard` (General/Shared)
-- `/admin/dashboard`
-- `/finance/dashboard`
-- `/operator/dashboard`
-- `/supervisor/dashboard` (Implied via Approvals/Budget views)
-- `/vendor/dashboard`
+- https://frontend-tugas-akhir.vercel.app/dashboard (General/Shared)
+- https://frontend-tugas-akhir.vercel.app/admin/dashboard
+- https://frontend-tugas-akhir.vercel.app/finance/dashboard
+- https://frontend-tugas-akhir.vercel.app/operator/dashboard
+- https://frontend-tugas-akhir.vercel.app/supervisor/dashboard
+- https://frontend-tugas-akhir.vercel.app/vendor/dashboard
 
 ## 3. Admin Module
 ### User Management
-- `/admin/users`
-- `/admin/users/new`
-- `/admin/users/[id]`
-- `/admin/roles`
-- `/admin/roles/[id]`
+- https://frontend-tugas-akhir.vercel.app/admin/users
+- https://frontend-tugas-akhir.vercel.app/admin/users/new
+- https://frontend-tugas-akhir.vercel.app/admin/users/[id]
+- https://frontend-tugas-akhir.vercel.app/admin/roles
+- https://frontend-tugas-akhir.vercel.app/admin/roles/[id]
 
 ### Master Data
-- `/admin/master/categories`
-- `/admin/master/currencies`
-- `/admin/master/departments`
-- `/admin/master/taxes`
-- `/admin/master/workflows`
+- https://frontend-tugas-akhir.vercel.app/admin/master/categories
+- https://frontend-tugas-akhir.vercel.app/admin/master/currencies
+- https://frontend-tugas-akhir.vercel.app/admin/master/departments
+- https://frontend-tugas-akhir.vercel.app/admin/master/taxes
+- https://frontend-tugas-akhir.vercel.app/admin/master/workflows
 
 ### Settings & Audit
-- `/admin/settings`
-- `/admin/settings/email-templates`
-- `/admin/settings/integrations`
-- `/admin/audit`
-- `/admin/audit/login`
+- https://frontend-tugas-akhir.vercel.app/admin/settings
+- https://frontend-tugas-akhir.vercel.app/admin/settings/email-templates
+- https://frontend-tugas-akhir.vercel.app/admin/settings/integrations
+- https://frontend-tugas-akhir.vercel.app/admin/audit
+- https://frontend-tugas-akhir.vercel.app/admin/audit/login
 
 ## 4. Finance Module
 ### Budget & Tax
-- `/finance/budget`
-- `/finance/budget/[id]`
-- `/finance/tax`
-- `/finance/tax/withholding`
+- https://frontend-tugas-akhir.vercel.app/finance/budget
+- https://frontend-tugas-akhir.vercel.app/finance/budget/[id]
+- https://frontend-tugas-akhir.vercel.app/finance/tax
+- https://frontend-tugas-akhir.vercel.app/finance/tax/withholding
 
 ### Invoices & Payments
-- `/finance/invoices`
-- `/finance/invoices/create`
-- `/finance/invoices/[id]`
-- `/finance/invoices/[id]/verify`
-- `/finance/payments`
-- `/finance/payments/new`
-- `/finance/payments/[id]`
+- https://frontend-tugas-akhir.vercel.app/finance/invoices
+- https://frontend-tugas-akhir.vercel.app/finance/invoices/create
+- https://frontend-tugas-akhir.vercel.app/finance/invoices/[id]
+- https://frontend-tugas-akhir.vercel.app/finance/invoices/[id]/verify
+- https://frontend-tugas-akhir.vercel.app/finance/payments
+- https://frontend-tugas-akhir.vercel.app/finance/payments/new
+- https://frontend-tugas-akhir.vercel.app/finance/payments/[id]
 
 ### Disputes & Vendors
-- `/finance/disputes`
-- `/finance/disputes/[id]`
-- `/finance/vendors`
-- `/finance/vendors/[id]`
+- https://frontend-tugas-akhir.vercel.app/finance/disputes
+- https://frontend-tugas-akhir.vercel.app/finance/disputes/[id]
+- https://frontend-tugas-akhir.vercel.app/finance/vendors
+- https://frontend-tugas-akhir.vercel.app/finance/vendors/[id]
 
 ## 5. Supervisor Module
-- `/supervisor/approvals`
-- `/supervisor/approvals/pr`
-- `/supervisor/approvals/po`
-- `/supervisor/approvals/payment`
-- `/supervisor/budget`
-- `/supervisor/budget/[id]`
-- `/supervisor/vendors`
-- `/supervisor/vendors/[id]`
-- `/supervisor/vendors/registrations`
-- `/supervisor/vendors/scorecard`
+- https://frontend-tugas-akhir.vercel.app/supervisor/approvals
+- https://frontend-tugas-akhir.vercel.app/supervisor/approvals/pr
+- https://frontend-tugas-akhir.vercel.app/supervisor/approvals/po
+- https://frontend-tugas-akhir.vercel.app/supervisor/approvals/payment
+- https://frontend-tugas-akhir.vercel.app/supervisor/budget
+- https://frontend-tugas-akhir.vercel.app/supervisor/budget/[id]
+- https://frontend-tugas-akhir.vercel.app/supervisor/vendors
+- https://frontend-tugas-akhir.vercel.app/supervisor/vendors/[id]
+- https://frontend-tugas-akhir.vercel.app/supervisor/vendors/registrations
+- https://frontend-tugas-akhir.vercel.app/supervisor/vendors/scorecard
 
 ## 6. Procurement / Operator Module
 ### Purchase Requisition (PR)
-- `/procurement/pr`
-- `/procurement/pr/create`
-- `/procurement/pr/[id]`
-- `/procurement/pr/[id]/approve`
+- https://frontend-tugas-akhir.vercel.app/procurement/pr
+- https://frontend-tugas-akhir.vercel.app/procurement/pr/create
+- https://frontend-tugas-akhir.vercel.app/procurement/pr/[id]
+- https://frontend-tugas-akhir.vercel.app/procurement/pr/[id]/approve
 
 ### Request for Quotation (RFQ)
-- `/procurement/rfq`
-- `/procurement/rfq/new`
-- `/procurement/rfq/[id]`
-- `/procurement/rfq/[id]/compare`
+- https://frontend-tugas-akhir.vercel.app/procurement/rfq
+- https://frontend-tugas-akhir.vercel.app/procurement/rfq/new
+- https://frontend-tugas-akhir.vercel.app/procurement/rfq/[id]
+- https://frontend-tugas-akhir.vercel.app/procurement/rfq/[id]/compare
 
 ### Purchase Order (PO)
-- `/procurement/po`
-- `/procurement/po/new`
-- `/procurement/po/[id]`
-- `/procurement/po/[id]/approve`
+- https://frontend-tugas-akhir.vercel.app/procurement/po
+- https://frontend-tugas-akhir.vercel.app/procurement/po/new
+- https://frontend-tugas-akhir.vercel.app/procurement/po/[id]
+- https://frontend-tugas-akhir.vercel.app/procurement/po/[id]/approve
 
 ### Goods Receipt (GR)
-- `/procurement/gr`
-- `/procurement/gr/new`
-- `/procurement/gr/[id]`
+- https://frontend-tugas-akhir.vercel.app/procurement/gr
+- https://frontend-tugas-akhir.vercel.app/procurement/gr/new
+- https://frontend-tugas-akhir.vercel.app/procurement/gr/[id]
 
 ### Vendor Management
-- `/procurement/vendors`
-- `/procurement/vendors/[id]`
-- `/procurement/vendors/[id]/contracts`
-- `/procurement/vendors/[id]/qualification`
-- `/procurement/vendors/approvals`
-- `/procurement/vendors/assessments`
-- `/procurement/vendors/blacklist`
-- `/procurement/vendors/scorecard`
-- `/procurement/approvals`
+- https://frontend-tugas-akhir.vercel.app/procurement/vendors
+- https://frontend-tugas-akhir.vercel.app/procurement/vendors/[id]
+- https://frontend-tugas-akhir.vercel.app/procurement/vendors/[id]/contracts
+- https://frontend-tugas-akhir.vercel.app/procurement/vendors/[id]/qualification
+- https://frontend-tugas-akhir.vercel.app/procurement/vendors/approvals
+- https://frontend-tugas-akhir.vercel.app/procurement/vendors/assessments
+- https://frontend-tugas-akhir.vercel.app/procurement/vendors/blacklist
+- https://frontend-tugas-akhir.vercel.app/procurement/vendors/scorecard
+- https://frontend-tugas-akhir.vercel.app/procurement/approvals
 
 ### Contracts & Billing
-- `/operator/contracts`
-- `/operator/contracts/[id]`
-- `/operator/billing/create`
+- https://frontend-tugas-akhir.vercel.app/operator/contracts
+- https://frontend-tugas-akhir.vercel.app/operator/contracts/[id]
+- https://frontend-tugas-akhir.vercel.app/operator/billing/create
 
 ## 7. Vendor Portal
 ### Profile & Registration
-- `/vendor/profile`
-- `/vendor/profile/complete`
+- https://frontend-tugas-akhir.vercel.app/vendor/profile
+- https://frontend-tugas-akhir.vercel.app/vendor/profile/complete
 
 ### RFQ & Quotations
-- `/vendor/rfq`
-- `/vendor/rfq/[id]`
-- `/vendor/rfq/[id]/quote`
-- `/vendor/quotations`
+- https://frontend-tugas-akhir.vercel.app/vendor/rfq
+- https://frontend-tugas-akhir.vercel.app/vendor/rfq/[id]
+- https://frontend-tugas-akhir.vercel.app/vendor/rfq/[id]/quote
+- https://frontend-tugas-akhir.vercel.app/vendor/quotations
 
 ### Orders & Invoices
-- `/vendor/po`
-- `/vendor/po/[id]`
-- `/vendor/invoices`
-- `/vendor/invoices/new`
+- https://frontend-tugas-akhir.vercel.app/vendor/po
+- https://frontend-tugas-akhir.vercel.app/vendor/po/[id]
+- https://frontend-tugas-akhir.vercel.app/vendor/invoices
+- https://frontend-tugas-akhir.vercel.app/vendor/invoices/new
 
 ### Payments & Disputes
-- `/vendor/payments`
-- `/vendor/disputes`
-- `/vendor/disputes/new`
-- `/vendor/disputes/[id]`
+- https://frontend-tugas-akhir.vercel.app/vendor/payments
+- https://frontend-tugas-akhir.vercel.app/vendor/disputes
+- https://frontend-tugas-akhir.vercel.app/vendor/disputes/new
+- https://frontend-tugas-akhir.vercel.app/vendor/disputes/[id]
 
 ### Communication
-- `/vendor/messages`
+- https://frontend-tugas-akhir.vercel.app/vendor/messages
 
 ## 8. Shared / Others
-- `/notifications`
+- https://frontend-tugas-akhir.vercel.app/notifications
 
 ---
 *Generated by System Audit on 2026-01-08*
