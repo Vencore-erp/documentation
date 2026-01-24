@@ -28,7 +28,7 @@ Dari rumusan masalah tersebut, penelitian ini berupaya menjawab pertanyaan-perta
 
 Agar penelitian ini tetap fokus dan terarah, batasan masalah ditetapkan sebagai berikut:
 1. Sistem dikembangkan sebagai *Proof of Concept* (PoC) yang mencakup modul inti: Manajemen Identitas, Katalog Vendor, *Purchase Request*, *Purchase Order*, serta *Invoice Submission* dengan mekanisme *timestamp* server.
-2. Implementasi teknologi menggunakan Spring Boot (*Backend*), Next.js (*Frontend* dengan optimasi *Server-Side Rendering*), dan Apache Kafka sebagai *event streaming backbone* untuk komunikasi asinkron.
+2. Implementasi teknologi menggunakan Spring Boot (*Backend*), Next.js (*Frontend*), dan Apache Kafka sebagai *event streaming backbone* untuk komunikasi asinkron.
 3. Pengujian dilakukan menggunakan data sintetis (*synthetic data*) yang meniru karakteristik data riil untuk memvalidasi alur bisnis dan ketahanan arsitektur, tanpa menggunakan data nasabah/bank.
 4. Fokus keamanan dibatasi pada arsitektur segregasi jaringan (pola DMZ), autentikasi dan otorisasi level aplikasi (*Role-Based Access Control*), serta integritas data melalui *event sourcing*. Aspek keamanan di luar lingkup meliputi: konfigurasi infrastruktur jaringan fisik, pengujian penetrasi (*penetration testing*), enkripsi perangkat keras (*Hardware Security Module*/HSM), dan audit kepatuhan pihak ketiga.
 5. Sistem tidak terintegrasi secara langsung (*live integration*) dengan sistem *Core Banking* atau SAP *production* milik PT XYZ.
