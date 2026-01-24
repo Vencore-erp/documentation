@@ -17,40 +17,38 @@ Sebagai pelengkap, teknologi *Event-Driven Architecture* berbasis Apache Kafka d
 
 ## 1.2 Rumusan Masalah
 
-Berdasarkan latar belakang tersebut, permasalahan yang ingin dijawab dalam penelitian ini adalah:
-1.  Bagaimana merancang arsitektur sistem *e-procurement* yang mampu mengeliminasi ketergantungan pada proses manual dan memitigasi risiko kesalahan input data?
-2.  Bagaimana penerapan arsitektur *microservices* dan *event-driven* dapat meningkatkan reliabilitas sistem serta menjamin validitas data (*non-repudiation*)?
+Berdasarkan latar belakang yang telah diuraikan, dapat diidentifikasi permasalahan utama sebagai berikut: proses pengadaan barang dan jasa di PT XYZ masih bergantung pada komunikasi berbasis *email* yang tidak terstruktur, sehingga menimbulkan risiko kehilangan informasi penting (seperti revisi harga), sengketa tagihan akibat ketiadaan bukti penerimaan yang sah, serta ketiadaan jejak audit yang dapat dipertanggungjawabkan. Di sisi lain, upaya modernisasi terkendala oleh restriksi keamanan yang tidak memungkinkan pemberian akses langsung kepada pihak eksternal ke dalam sistem internal perusahaan.
+
+Dari rumusan masalah tersebut, penelitian ini berupaya menjawab pertanyaan-pertanyaan berikut:
+1. Bagaimana merancang arsitektur *microservices* yang memisahkan layanan publik (*vendor-facing*) dan layanan internal (*procurement core*) untuk memenuhi prinsip keamanan *Zero Trust* dan pola DMZ?
+2. Bagaimana mengimplementasikan mekanisme *Event-Driven Architecture* menggunakan Apache Kafka untuk mengatasi permasalahan *version control* pada revisi harga dan menjamin *non-repudiation* pada proses penagihan?
+3. Bagaimana memvalidasi bahwa arsitektur yang diusulkan mampu memenuhi kebutuhan fungsional proses pengadaan serta menyediakan jejak audit yang komprehensif?
 
 ## 1.3 Batasan Penelitian
 
 Agar penelitian ini tetap fokus dan terarah, batasan masalah ditetapkan sebagai berikut:
-1.  Sistem dikembangkan sebagai *Proof of Concept* (PoC) yang mencakup modul inti: Manajemen Identitas, Katalog Vendor, *Purchase Request*, dan *Purchase Order*.
-2.  Implementasi teknologi menggunakan Spring Boot (*Backend*), Next.js (*Frontend* dengan optimasi *Server-Side Rendering*), dan Apache Kafka sebagai *event streaming backbone* untuk komunikasi asinkron.
-3.  Pengujian dilakukan menggunakan data sintetis (*synthetic data*) yang meniru karakteristik data riil untuk memvalidasi alur bisnis dan ketahanan arsitektur, tanpa menggunakan data nasabah/bank.
-4.  Lingkup keamanan terbatas pada mekanisme Autentikasi dan Otorisasi (level aplikasi) serta segregasi layanan, tidak mencakup konfigurasi keamanan infrastruktur jaringan (*network security*) atau pengujian penetrasi mendalam (*penetration testing*).
-5.  Sistem tidak terintegrasi secara langsung (*live integration*) dengan sistem *Core Banking* atau SAP *production* milik PT XYZ.
+1. Sistem dikembangkan sebagai *Proof of Concept* (PoC) yang mencakup modul inti: Manajemen Identitas, Katalog Vendor, *Purchase Request*, *Purchase Order*, serta *Invoice Submission* dengan mekanisme *timestamp* server.
+2. Implementasi teknologi menggunakan Spring Boot (*Backend*), Next.js (*Frontend* dengan optimasi *Server-Side Rendering*), dan Apache Kafka sebagai *event streaming backbone* untuk komunikasi asinkron.
+3. Pengujian dilakukan menggunakan data sintetis (*synthetic data*) yang meniru karakteristik data riil untuk memvalidasi alur bisnis dan ketahanan arsitektur, tanpa menggunakan data nasabah/bank.
+4. Lingkup keamanan terbatas pada mekanisme Autentikasi dan Otorisasi (level aplikasi) serta segregasi layanan, tidak mencakup konfigurasi keamanan infrastruktur jaringan (*network security*) atau pengujian penetrasi mendalam (*penetration testing*).
+5. Sistem tidak terintegrasi secara langsung (*live integration*) dengan sistem *Core Banking* atau SAP *production* milik PT XYZ.
 
-## 1.4 Pertanyaan Penelitian
+## 1.4 Tujuan Penelitian
 
-1.  Bagaimana merancang arsitektur *microservices* yang memisahkan layanan publik (*vendor-facing*) dan layanan internal untuk memenuhi standar keamanan *Zero Trust*?
-2.  Bagaimana mengimplementasikan mekanisme *Event-Driven* menggunakan Apache Kafka untuk menjamin konsistensi data dan jejak audit (*audit trail*) antar layanan?
-3.  Bagaimana kinerja arsitektur *microservices* yang diusulkan ditinjau dari aspek *response time*, *throughput*, dan *recovery time* saat dilakukan simulasi beban tinggi dan kegagalan layanan?
+Berdasarkan rumusan masalah di atas, penelitian ini memiliki tujuan sebagai berikut:
+1. Merancang arsitektur sistem *e-procurement* berbasis *microservices* yang memisahkan layanan publik (*Vendor Portal*) dan layanan internal (*Procurement Core*) sesuai prinsip keamanan *Zero Trust* dan pola DMZ.
+2. Mengimplementasikan mekanisme *event sourcing* menggunakan Apache Kafka untuk merekam setiap perubahan data—termasuk revisi harga dan unggahan tagihan—sebagai *immutable event* dengan *server-side timestamp*, guna mengeliminasi ambiguitas versi dokumen dan menjamin *non-repudiation*.
+3. Memvalidasi fungsionalitas sistem melalui pengujian skenario *end-to-end* yang mencakup alur pengajuan, persetujuan, pemesanan, dan penagihan, serta memverifikasi kelengkapan jejak audit (*audit trail*) pada setiap tahapan proses.
 
-## 1.5 Tujuan Penelitian
-
-1.  Merancang arsitektur sistem *e-procurement* berbasis *microservices* yang memisahkan layanan publik dan internal sesuai prinsip keamanan *Zero Trust*.
-2.  Mengimplementasikan mekanisme *Event-Driven Architecture* menggunakan Apache Kafka untuk menjamin konsistensi data dan jejak audit antar layanan secara *real-time*.
-3.  Mengevaluasi ketahanan (*resilience*) dan skalabilitas arsitektur *microservices* melalui pengujian simulasi beban transaksi dan skenario kegagalan layanan.
-
-## 1.6 Manfaat Penelitian
+## 1.5 Manfaat Penelitian
 
 Penelitian ini diharapkan dapat memberikan kontribusi nyata dalam dua aspek, yaitu:
 
-### 1.6.1 Manfaat Teoretis
+### 1.5.1 Manfaat Teoretis
 1.  Memberikan referensi akademis mengenai penerapan arsitektur *Microservices* dan pola *Event-Driven Architecture* (EDA) secara spesifik dalam domain sistem pengadaan korporasi (*enterprise procurement*).
 2.  Menambah khazanah literatur terkait strategi modernisasi sistem internal perbankan yang menyeimbangkan antara kebutuhan integrasi terbuka dan standar keamanan ketat melalui pola pemisahan zona jaringan (DMZ).
 
-### 1.6.2 Manfaat Praktis
+### 1.5.2 Manfaat Praktis
 1.  **Bagi PT XYZ (Perusahaan)**: Memberikan solusi teknis yang dapat meminimalkan risiko *human error* dalam revisi harga dan sengketa tagihan, meningkatkan *auditability* seluruh transaksi pengadaan, serta menyediakan kerangka kerja sistem (*framework*) yang aman untuk berinteraksi dengan vendor tanpa membahayakan data inti perbankan.
 2.  **Bagi Vendor**: Menyediakan mekanisme yang transparan dan mandiri (*self-service*) dalam proses penawaran dan penagihan, memberikan kepastian status dokumen melalui bukti penerimaan (*digital receipt*) yang terekam secara sistematis.
 3.  **Bagi Peneliti Selanjutnya**: Menjadi landasan studi komparatif untuk pengembangan sistem terdistribusi lainnya, khususnya yang melibatkan integrasi antar layanan dengan *concern* keamanan yang tinggi.
