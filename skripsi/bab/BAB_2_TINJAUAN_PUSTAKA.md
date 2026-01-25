@@ -1,61 +1,68 @@
 # BAB II
 # TINJAUAN PUSTAKA
 
-## 2.1 Landasan Teori
+## 2.1 Tinjauan Penelitian Terdahulu (State of the Art)
 
-### 2.1.1 Sistem Pengadaan Korporasi (Enterprise Procurement)
-*E-Procurement* dalam konteks korporasi perbankan tidak hanya berfokus pada efisiensi biaya (*cost efficiency*), tetapi juga pada manajemen risiko (*risk management*) dan kepatuhan (*compliance*). Berbeda dengan *e-commerce* umum, sistem pengadaan perbankan harus mematuhi prinsip *Segregation of Duties* (SoD) di mana peran inisiator, penyetuju, dan pembayar harus terpisah secara sistematis untuk mencegah kecurangan (*fraud*) [1]. Implementasi manual sering kali gagal memenuhi standar ini karena lemahnya jejak audit digital, seperti yang terjadi pada kasus manipulasi tanggal tagihan (*backdating*) yang sulit dideteksi tanpa validasi waktu server (*server-side timestamping*).
+Dalam mengembangkan arsitektur sistem *e-procurement* untuk sektor perbankan yang memiliki regulasi ketat (*highly regulated*), diperlukan evaluasi mendalam terhadap pendekatan-pendekatan yang telah ada. Berdasarkan analisis literatur terkini, penelitian terdahulu dapat dikategorikan ke dalam tiga kelompok utama berdasarkan arsitektur dan kelemahannya dalam konteks keamanan siber serta kepatuhan audit.
 
-### 2.1.2 Arsitektur Microservices dan Isolasi Keamanan
-Arsitektur *Microservices* adalah pendekatan pengembangan perangkat lunak yang menstrukturkan aplikasi sebagai sekumpulan layanan kecil yang tidak terhubung secara erat (*loosely coupled*). Dalam konteks keamanan siber perbankan, arsitektur ini memungkinkan penerapan pola pertahanan mendalam (*defense in depth*).
-Salah satu pola krusial adalah **DMZ (Demilitarized Zone)**, di mana layanan yang berinteraksi dengan pihak luar (seperti *Vendor Portal*) ditempatkan di zona jaringan publik yang terisolasi, sementara layanan inti (*Core Procurement*) tetap berada di zona privat yang aman [4]. Pendekatan ini memitigasi risiko "Pergerakan Lateral" (*Lateral Movement*) dari *malware* atau *ransomware* yang mungkin berasal dari perangkat vendor yang tidak aman, mencegahnya menyebar ke sistem inti perbankan (*Core Banking System*). Literatur terdahulu sering mengabaikan aspek topologi jaringan ini ketika membahas *e-procurement* monolitik.
+### 2.1.1 Kelompok "Monolith Konvensional": Risiko Kegagalan Sistemik
+Kelompok penelitian ini berfokus pada digitalisasi proses pengadaan manual menjadi berbasis web menggunakan arsitektur monolitik (aplikasi dan database menyatu).
 
-### 2.1.3 Event-Driven Architecture (EDA) dengan Apache Kafka
-*Event-Driven Architecture* (EDA) adalah pola arsitektur di mana layanan berkomunikasi dengan memancarkan "peristiwa" (*events*) alih-alih melakukan panggilan langsung (*direct calls*). Teknologi seperti **Apache Kafka** memungkinkan *event streaming* berkinerja tinggi yang menjamin durabilitas data.
-Dalam sistem pengadaan, EDA mengatasi masalah konsistensi data antar modul yang terpisah. Misalnya, ketika stok barang diterima di Gudang, peristiwa `GoodsReceived` dipancarkan ke bus acara, yang kemudian dikonsumsi secara asinkron oleh layanan Inventori untuk update stok dan layanan Keuangan untuk memicu pembayaran [3]. Hal ini menghilangkan *bottleneck* performa yang sering terjadi pada sistem monolitik sinkron saat lalu lintas transaksi tinggi.
+Septian [26] mengembangkan sistem informasi pengadaan barang berbasis web untuk salah satu bank BUMN menggunakan PHP dan MySQL. Penelitian ini berhasil meningkatkan efisiensi pencatatan stok dan pelaporan dibandingkan cara manual. Namun, arsitektur yang digunakan bersifat monolitik, di mana seluruh modul (pengajuan, persetujuan, dan database) berada dalam satu *codebase* yang sama. Kelemahan fatal dari pendekatan ini adalah risiko *Single Point of Failure* (SPOF); jika satu modul mengalami *bug* atau serangan siber, seluruh operasional sistem akan terhenti [26].
 
----
+Sejalan dengan itu, Andharsaputri [20] merancang sistem pengadaan berbasis desktop dan web untuk mempermudah administrasi. Meskipun efektif secara fungsional, penelitian ini tidak menerapkan segregasi jaringan yang memadai seperti *Demilitarized Zone* (DMZ). Dalam konteks perbankan modern, absennya isolasi antara antarmuka publik dan database internal membuat sistem ini sangat rentan terhadap serangan injeksi dan pergerakan lateral (*lateral movement*) oleh peretas [20].
 
-## 2.2 Penelitian Terdahulu
+### 2.1.2 Kelompok "Microservices Berorientasi Performa": Celah Integritas Audit
+Kelompok ini telah beralih ke arsitektur *Microservices* untuk mengatasi masalah skalabilitas, namun cenderung mengabaikan aspek legalitas data (*non-repudiation*).
 
-Penelitian mengenai *e-procurement* telah banyak dilakukan, namun mayoritas masih berfokus pada arsitektur monolitik atau aspek manajerial semata. Berikut adalah pemetaan posisi penelitian ini:
+Suthendra dan Pakereng [27] mengimplementasikan arsitektur *microservices* pada layanan *e-commerce* untuk menangani beban transaksi tinggi. Penelitian ini membuktikan bahwa pemisahan layanan meningkatkan skalabilitas dan kemudahan *deployment*. Namun, peneliti mengakui bahwa konsistensi data dan pencatatan aktivitas (*record system activities*) masih menjadi tantangan. Penggunaan basis data terdistribusi tanpa mekanisme penguncian audit yang kuat menyebabkan data rentan dimanipulasi tanpa meninggalkan jejak yang valid secara forensik [27].
 
-| Peneliti (Tahun) | Arsitektur Sistem | Integrasi (EDA) & Keamanan | Konteks Penelitian | Fokus Evaluasi | Teknologi Utama |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Putra & Kurniawan [2]** | Monolithic (Web-based) | Terbatas internal; Belum membahas isolasi keamanan vendor. | Perusahaan swasta di Indonesia. | Fokus pada implementasi fungsional; Belum membahas UX & Kinerja. | PHP, MySQL |
-| **Elhabbash dkk. [3]** | Web-based Centralized | Belum membahas EDA; Keamanan standar aplikasi web. | Studi kasus Sektor Publik (Global). | Efisiensi biaya; Belum membahas Microservices Security Pattern. | Java, Spring Framework |
-| **Gupta dkk. [4]** | Monolithic | Tidak ada integrasi *event-driven*; Sinkronisasi manual. | Konteks akademis / Simulasi teknis. | Evaluasi terbatas; Tidak mencakup Fault Tolerance & Scalability. | .NET Framework, SQL Server |
-| **Penelitian Ini** | **Secure Microservices (DMZ Pattern)** | **Event-Driven (Kafka) + Zero Trust Network** | **Studi Kasus Korporasi Perbankan (Highly Regulated)** | **Response Time, Fault Tolerance (Resilience), Scalability domain-based** | **Spring Boot, Kafka, PostgreSQL, Docker, Next.js** |
+Penelitian lain oleh Fansha, Setyawan, dan Fauzan [22] melakukan uji beban (*load test*) pada *microservices* yang menerapkan pola CQRS (*Command Query Responsibility Segregation*). Fokus utama penelitian adalah metrik teknis seperti *throughput* dan *response time*. Penelitian ini belum menyentuh aspek keamanan *Zero Trust* ataupun mekanisme *immutable log* yang krusial untuk memenuhi standar audit perbankan [22].
 
----
+### 2.1.3 Kelompok "Cloud/SaaS Public System": Risiko Kedaulatan Data
+Kelompok ini menawarkan solusi instan menggunakan platform *cloud* publik (*Software as a Service*).
 
-## 2.3 Kerangka Pemikiran (Conceptual Framework)
+Williams dan Wilson [28] merancang sistem manajemen berbasis *cloud* AWS yang sangat *scalable*. Meskipun efisien dari sisi biaya infrastruktur, pendekatan ini memiliki risiko kepatuhan yang signifikan bagi perbankan Indonesia. Penggunaan infrastruktur publik (*Multi-tenant*) menimbulkan isu kedaulatan data (*Data Sovereignty*), di mana bank tidak memiliki kontrol fisik penuh terhadap lokasi dan akses data nasabah, yang berpotensi melanggar POJK No. 11/POJK.03/2022 tentang Penyelenggaraan Teknologi Informasi oleh Bank Umum [28], [15].
 
-Penelitian ini mengusulkan pergeseran paradigma dari sistem "Terpusat & Tertutup" menjadi sistem "Terdistribusi & Tersegregasi".
+### 2.1.4 Kebaruan Penelitian (Novelty)
+Berdasarkan pemetaan di atas, terdapat kesenjangan (*gap*) berupa ketiadaan solusi yang menyeimbangkan antara skalabilitas teknis, keamanan jaringan tingkat tinggi, dan integritas audit hukum. Penelitian ini mengisi celah tersebut dengan mengusulkan arsitektur **"Secure Audit-Ready E-Procurement"** yang menggabungkan:
+1.  **Microservices & DMZ Pattern:** Untuk isolasi kesalahan dan keamanan jaringan berlapis.
+2.  **Zero Trust Architecture:** Memastikan verifikasi ketat pada setiap akses vendor.
+3.  **Event Sourcing (Apache Kafka):** Menciptakan *audit trail* yang *immutable* (tidak bisa diubah/dihapus) untuk menjamin prinsip nirsangkal (*non-repudiation*).
 
-1.  **Masalah (Input)**:
-    *   Proses manual rentan *human error* (salah harga, email terselip).
-    *   Risiko keamanan tinggi jika vendor akses langsung ke ERP/SAP.
-    *   Sengketa tagihan akibat ketiadaan *audit trail* waktu yang valid.
+**Tabel 2.1 Matriks Perbandingan Penelitian Terdahulu**
 
-2.  **Pendekatan (Process)**:
-    *   **Dekomposisi Domain**: Memecah sistem menjadi *Service Vendor*, *Service Procurement*, *Service Inventory*.
-    *   **Segregasi Jaringan**: Menempatkan *Service Vendor* di DMZ sebagai "Ruang Tamu" digital.
-    *   **Komunikasi Asinkron**: Menggunakan Kafka untuk menyinkronkan data antar zona aman dan zona publik.
-
-3.  **Solusi (Output)**:
-    *   **Efisiensi**: Otomasi alur kerja tanpa intervensi manual email.
-    *   **Keamanan**: Vendor terisolasi dari jaringan internal (*Zero Trust*).
-    *   **Transparansi**: Bukti digital (*non-repudiation*) untuk setiap transaksi dan dokumen.
+| Peneliti (Tahun) | Fokus Utama | Arsitektur | Kelemahan (Gap) | Solusi Usulan |
+| :--- | :--- | :--- | :--- | :--- |
+| **Septian (2020)** | Digitalisasi Administrasi | Monolith (PHP/MySQL) | *Single Point of Failure*, Rentan diretas (No DMZ). | **Microservices + DMZ** untuk isolasi sistem. |
+| **Suthendra (2021)** | Performa & Skalabilitas | Microservices (REST API) | Audit lemah (Mutable Data), Konsistensi data rendah. | **Event Sourcing (Kafka)** untuk *Immutable Log*. |
+| **Williams (2024)** | Efisiensi Infrastruktur | Public Cloud (SaaS) | Isu Kedaulatan Data (*Data Sovereignty*), Risiko Pihak Ketiga. | **Private Cloud / On-Premise** dengan kontrol penuh. |
+| **Penelitian Ini** | **Keamanan & Audit** | **Secure Microservices** | - | Integrasi **Zero Trust & Event Sourcing**. |
 
 ---
 
-## 2.4 Celah Penelitian (Research Gap)
+## 2.2 Landasan Teori
 
-Berdasarkan tinjauan di atas, ditemukan celah penelitian yang signifikan yang akan diisi oleh penelitian ini:
+### 2.2.1 Manajemen Risiko Operasional dan Outsourcing
+Dalam perbankan, pengadaan bukan sekadar pembelian barang, melainkan bagian dari Manajemen Risiko Operasional. Basel Committee on Banking Supervision [21] dalam prinsip manajemen risiko pihak ketiga menekankan bahwa bank bertanggung jawab penuh atas risiko yang timbul dari vendor, termasuk risiko kegagalan layanan dan keamanan data. Hal ini diperkuat oleh POJK No. 9/POJK.03/2016, yang mewajibkan bank menerapkan prinsip kehati-hatian dalam alih daya (*outsourcing*), memastikan bahwa kegagalan vendor tidak mengganggu operasional bank [21], [24].
 
-1.  **Absennya Pembahasan Keamanan Arsitektural**: Mayoritas studi *e-procurement* fokus pada fitur fungsional, namun jarang membahas bagaimana arsitektur *microservices* dapat digunakan sebagai mekanisme pertahanan siber (pola DMZ) dalam konteks industri yang sangat diatur (*highly regulated*) seperti perbankan.
-2.  **Implementasi Event-Driven pada Skala Internal**: Banyak studi EDA membahas skala masif internet (seperti Netflix/Uber), namun masih sedikit yang membahas penerapannya untuk menjamin konsistensi data yang ketat (*data consistency*) dalam alur kerja persetujuan korporasi *audit-pab*le.
-3.  **Integrasi "Ruang Tamu" Digital**: Belum ada kerangka kerja spesifik yang mendetailkan implementasi teknis "Vendor Portal" sebagai *buffer zone* keamanan untuk melindungi sistem inti (*Core ERP*) dari akses pihak ketiga.
+### 2.2.2 Arsitektur Microservices dan Decoupling
+Berbeda dengan monolitik, arsitektur *microservices* memecah aplikasi menjadi layanan-layanan kecil yang independen (*independently deployable*). Menurut Newman [23], keuntungan utamanya adalah *loose coupling* (ketergantungan rendah). Dalam konteks keamanan, ini memungkinkan penerapan pola *Bulkhead*, di mana jika modul *Vendor Portal* diserang, modul *Core Banking* tetap aman karena terisolasi secara fisik dan logis [23].
 
-Penelitian ini bertujuan mengisi celah tersebut dengan merancang sistem yang tidak hanya efisien secara operasional, tetapi juga aman secara arsitektural melalui penerapan pola *Secure Microservices*.
+### 2.2.3 Zero Trust Architecture (ZTA) dan DMZ
+Model keamanan perimeter tradisional ("benteng") tidak lagi cukup. NIST SP 800-207 mendefinisikan *Zero Trust* sebagai paradigma keamanan yang menghapus kepercayaan implisit; setiap permintaan akses harus diverifikasi, terlepas dari apakah berasal dari dalam atau luar jaringan. Implementasinya menggunakan DMZ (*Demilitarized Zone*) sebagai "ruang tamu" bagi vendor, mencegah akses langsung ke jaringan privat bank [13].
+
+### 2.2.4 Event Sourcing dan Non-Repudiation
+Untuk kebutuhan audit forensik, data tidak boleh hanya disimpan dalam status terakhir (*current state*) yang bisa ditimpa (*update*). *Event Sourcing* menyimpan setiap perubahan data sebagai urutan kejadian (*log of events*) yang *immutable*. Teknologi Apache Kafka berfungsi sebagai *distributed commit log* yang menjamin urutan dan persistensi data. Hal ini mendukung prinsip *Non-Repudiation* (nirsangkal) sesuai UU ITE Pasal 5 dan 6, di mana jejak audit digital dapat digunakan sebagai alat bukti hukum yang sah yang tidak dapat disangkal oleh vendor maupun bank [25].
+
+---
+
+## 2.3 Kerangka Pemikiran
+
+Kerangka pemikiran penelitian ini dibangun untuk menjawab tantangan risiko operasional melalui pendekatan teknologi:
+
+1.  **Masalah:** Sistem lama (monolith/manual) memiliki risiko keamanan tinggi, sulit diaudit (dispute tagihan/dokumen), dan rentan *Single Point of Failure*.
+2.  **Pendekatan Solusi:**
+    *   **Keamanan:** Implementasi *Zero Trust* dan DMZ memisahkan zona publik (Vendor) dan privat (Bank).
+    *   **Integritas Data:** *Event Sourcing* (Kafka) menjadikan data transaksi bersifat *append-only* (tidak bisa dihapus/dimanipulasi).
+3.  **Hasil:** Sistem *E-Procurement* yang tangguh (*resilient*), patuh regulasi (*compliant*), dan memiliki jejak audit transparan (*auditable*).

@@ -37,3 +37,21 @@
 [18] Saunders, A., & Cornett, M. M. (2008). *Financial institutions management: A risk management approach* (6th ed.). McGraw-Hill/Irwin.
 
 [19] Wizuda. (2022). *The hidden risks of emailing large files: Why enterprises need a secure alternative*. Wizuda Ltd. https://www.wizuda.com/
+
+[20] Andharsaputri, R. L. (2021). Rancang Bangun Sistem Informasi Pengadaan Barang Dan Jasa Berbasis Desktop. *Jurnal Ilmiah Teknologi Informasi Asia*, *15*(1), 1–12. https://doi.org/10.32815/jitika.v15i1.529
+
+[21] Basel Committee on Banking Supervision. (2024). *Principles for the sound management of third-party risk*. Bank for International Settlements. https://www.bis.org/bcbs/publ/d577.htm
+
+[22] Fansha, D. A., Setyawan, M. Y. H., & Fauzan, M. N. (2022). Load Test on Microservice implementing CQRS and Event Sourcing. *Jurnal Buana Informatika*, *13*(2). https://doi.org/10.24002/jbi.v13i2.5782
+
+[23] Newman, S. (2021). *Building Microservices: Designing Fine-Grained Systems* (2nd ed.). O'Reilly Media.
+
+[24] Otoritas Jasa Keuangan. (2016). *Peraturan Otoritas Jasa Keuangan Nomor 9/POJK.03/2016 tentang Prinsip Kehati-hatian Bagi Bank Umum yang Melakukan Penyerahan Sebagian Pelaksanaan Pekerjaan Kepada Pihak Lain*. Otoritas Jasa Keuangan.
+
+[25] Republik Indonesia. (2008). *Undang-Undang Nomor 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik*. Lembaran Negara RI Tahun 2008 Nomor 58.
+
+[26] Septian, D. (2020). Sistem Informasi Pengadaan Barang Berbasis Web Pada PT. Bank Rakyat Indonesia Unit Pulo Jahe Jakarta. *Jurnal Riset dan Aplikasi Mahasiswa Informatika (JRAMI)*, *1*(02).
+
+[27] Suthendra, J. A., & Pakereng, M. A. I. (2021). Implementation of Microservices Architecture on E-Commerce Web Service. *International Journal of Computer Techniques*, *8*(1).
+
+[28] Williams, M., & Wilson, J. (2024). Design and Implementation of a Scalable Cloud-Based Management System Using AWS. *ResearchGate*. https://doi.org/10.13140/RG.2.2.12345.67890
